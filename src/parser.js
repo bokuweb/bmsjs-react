@@ -17,12 +17,9 @@ export default class Parser {
     this.config = config;
   }
 
-
   parse (bms_text) {
     let rows = bms_text.split('\n');
-    for (let i = 0, len = rows.length; i < len; i++) {
-      this._parse(rows[i]);
-    }
+    for (let i = 0, len = rows.length; i < len; i++) this._parse(rows[i]);
     this._modifyAfterParse();
     this.bms.bpms[0] = {
       timing: 0,
@@ -33,29 +30,22 @@ export default class Parser {
     this._serialize(this.bms.bgms, "wav", this.bms.data);
     this._serialize(this.bms.stopTiming, "stop", this.bms.data);
     this.bms.totalNote = this._getTotalNote();
-    if (this.bms.total == null) {
-      this.bms.total = 200 + this.bms.totalNote;
-    }
+    this.bms.total = this.bms.total || 200 + this.bms.totalNote;
     this.notes = [];
     this.nodes = [];
     this.genTime = [];
     let time = 0;
     let _ref1 = this.bms.data;
-    let _j;
-    for (let i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
+    for (let i = 0, len = _ref1.length; i < len; i++) {
       let v = _ref1[i];
-      let node = {
-        timing: v.timing
-      };
+      let node = { timing: v.timing};
       this.appendFallParams(node, this.bms.bpms, time, 500);
       this.genTime.push(time);
       time = this.getGeneratedTime(node, 500);
       this.nodes.push(node);
     }
-    let _ref2 = this.genTime;
-    let _k;
-    for (let bar = _k = 0, _len2 = _ref2.length; _k < _len2; bar = ++_k) {
-      let time = _ref2[bar];
+    for (let bar = 0, len = this.genTime.length; bar < len; bar++) {
+      let time =  this.genTime[bar];
       this.generateNotes(this.bms, bar, time);
     }
     return {
@@ -170,9 +160,9 @@ export default class Parser {
   };
 
   getGeneratedTime (obj, fallDist) {
-    var i, v, _i, _len, _ref;
+    var v, _ref;
     _ref = obj.distY;
-    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+    for (let i = 0, len = _ref.length; i < len; i++) {
       v = _ref[i];
       if (v > 0) {
         return ~~(obj.bpm.timing[i] - (v / this.calcSpeed(obj.bpm.val[i], fallDist, this.config.highSpeed)));
@@ -264,7 +254,7 @@ export default class Parser {
       },
       meter: 1.0,
       note: {
-        key: (function() {
+        key: (() => {
           var _i, _results;
           _results = [];
           for (i = _i = 0; _i <= 8; i = ++_i) {
@@ -325,7 +315,7 @@ export default class Parser {
     if ((_base = this.wavMessages)[measureNum] == null) {
       _base[measureNum] = [];
     }
-    return this.wavMessages[measureNum].push((function() {
+    return this.wavMessages[measureNum].push((() => {
       var _i, _ref, _results;
       _results = [];
       for (i = _i = 0, _ref = msg.length - 1; _i <= _ref; i = _i += 2) {
@@ -337,7 +327,7 @@ export default class Parser {
 
   _storeData (msg, array) {
     var data, i;
-    data = (function() {
+    data = (() => {
       var _i, _ref, _results;
       _results = [];
       for (i = _i = 0, _ref = msg.length - 1; _i <= _ref; i = _i += 2) {
@@ -349,33 +339,27 @@ export default class Parser {
   };
 
   _storeSTOP (msg, array) {
-    var data, i;
-    data = (function() {
-      var _i, _ref, _results;
-      _results = [];
-      for (i = _i = 0, _ref = msg.length - 1; _i <= _ref; i = _i += 2) {
-        _results.push(parseInt(msg.slice(i, +(i + 1) + 1 || 9e9), 16));
+    let data = (() => {
+      let results = [];
+      for (let i = 0, ref = msg.length - 1;  i <= ref;  i += 2) {
+        results.push(parseInt(msg.slice(i, +(i + 1) + 1 || 9e9), 16));
       }
-      return _results;
+      return results;
     })();
     return array.message = merge(array.message, data);
   };
 
   _storeBPM (msg, bpm) {
-    var i;
-    return bpm.message = (function() {
-      var _i, _ref, _results;
-      _results = [];
-      for (i = _i = 0, _ref = msg.length - 1; _i <= _ref; i = _i += 2) {
-        _results.push(parseInt(msg.slice(i, +(i + 1) + 1 || 9e9), 16));
-      }
-      return _results;
-    })();
+    let results = [];
+    for (let i = 0, ref = msg.length - 1; i <= ref; i += 2) {
+      results.push(parseInt(msg.slice(i, +(i + 1) + 1 || 9e9), 16));
+    }
+    bpm.message = results;
   };
 
   _storeEXBPM (msg, bpm) {
     var i;
-    bpm.message = (function() {
+    bpm.message = (() => {
       var _i, _ref, _results;
       _results = [];
       for (i = _i = 0, _ref = msg.length - 1; _i <= _ref; i = _i += 2) {
@@ -412,7 +396,7 @@ export default class Parser {
       this._stopTiming(time, bar, bpm);
       this._wavTiming(time, bar, bpm, this.wavMessages[i]);
       l = bar.bpm.message.length;
-      _results.push((function() {
+      _results.push((() => {
         var _j, _len1, _ref1, _results1;
         _ref1 = bar.bpm.message;
         _results1 = [];
@@ -432,16 +416,15 @@ export default class Parser {
   };
 
   _calcTiming (time, objects, bpmobj, bpm, meter) {
-    var b, bl, bpms, i, objs, ol, t, val, _i, _len;
-    bl = bpmobj.message.length;
-    ol = objects.message.length;
-    bpms = expand(bpmobj.message, lcm(bl, ol));
-    objs = expand(objects.message, lcm(bl, ol));
-    t = 0;
-    b = bpm;
+    var b, val;
+    let bl = bpmobj.message.length;
+    let ol = objects.message.length;
+    let bpms = expand(bpmobj.message, lcm(bl, ol));
+    let objs = expand(objects.message, lcm(bl, ol));
+    let t = 0;
     objects.timing = [];
     objects.id = [];
-    for (i = _i = 0, _len = bpms.length; _i < _len; i = ++_i) {
+    for (let i = 0, len = bpms.length; i < len;  i++) {
       val = bpms[i];
       if (objs[i] !== 0) {
         objects.timing.push(time + t);
@@ -450,74 +433,59 @@ export default class Parser {
           this.bms.endTime = time + t;
         }
       }
-      if (val !== 0) {
-        b = val;
-      }
-      t += (240000 / b) * (1 / lcm(bl, ol)) * meter;
+      if (val !== 0) bpm = val;
+      t += (240000 / bpm) * (1 / lcm(bl, ol)) * meter;
     }
   };
 
   _noteTiming (time, bar, bpm) {
-    var l, n, _i, _len, _ref;
-    l = bar.bpm.message.length;
-    _ref = bar.note.key;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      n = _ref[_i];
-      if (n.message.length !== 0) {
-        this._calcTiming(time, n, bar.bpm, bpm, bar.meter);
+    for (let i = 0, len = bar.note.key.length; i < len; i++) {
+      if (bar.note.key[i].message.length !== 0) {
+        this._calcTiming(time, bar.note.key[i], bar.bpm, bpm, bar.meter);
       }
     }
-  };
+  }
 
   _bmpTiming (time, bar, bpm) {
-    return this._calcTiming(time, bar.bmp, bar.bpm, bpm, bar.meter);
-  };
+    this._calcTiming(time, bar.bmp, bar.bpm, bpm, bar.meter);
+  }
 
   _stopTiming (time, bar, bpm) {
-    return this._calcTiming(time, bar.stop, bar.bpm, bpm, bar.meter);
-  };
+    this._calcTiming(time, bar.stop, bar.bpm, bpm, bar.meter);
+  }
 
   _wavTiming (time, bar, bpm, wavss) {
-    var b, bpms, i, l, result, t, val, w, wavs, wl, ws, _i, _j, _k, _len, _len1, _len2, _ref, _results;
-    if (wavss == null) {
-      return;
-    }
-    l = bar.bpm.message.length;
-    result = [];
-    for (_i = 0, _len = wavss.length; _i < _len; _i++) {
-      ws = wavss[_i];
-      wl = ws.length;
+    var  bpms, val, wavs,   _ref, _results;
+    if (wavss == null)  return;
+    let l = bar.bpm.message.length;
+    let result = [];
+    for (let i = 0, len = wavss.length; i < len; i++) {
+      let ws = wavss[i];
+      let wl = ws.length;
       bpms = expand(bar.bpm.message, lcm(l, wl));
       wavs = expand(ws, lcm(l, wl));
-      t = 0;
-      b = bpm;
-      for (i = _j = 0, _len1 = bpms.length; _j < _len1; i = ++_j) {
+      let t = 0;
+      let b = bpm;
+      for (let i = 0, len = bpms.length; i < len; i ++) {
         val = bpms[i];
         if (wavs[i] !== 0) {
           result.push({
             timing: time + t,
             id: wavs[i]
           });
-          if (this.bms.endTime < time + t) {
-            this.bms.endTime = time + t;
-          }
+          if (this.bms.endTime < time + t) this.bms.endTime = time + t;
         }
-        if (val !== 0) {
-          b = val;
-        }
+        if (val !== 0)  b = val;
         t += (240000 / b) * (1 / lcm(l, wl)) * bar.meter;
       }
     }
-    _ref = result.sort(function(a, b) {
-      return a['timing'] - b['timing'];
-    });
-    _results = [];
-    for (_k = 0, _len2 = _ref.length; _k < _len2; _k++) {
-      w = _ref[_k];
-      bar.wav.timing.push(w.timing);
-      _results.push(bar.wav.id.push(w.id));
+    _ref = result.sort((a, b) =>  a['timing'] - b['timing']);
+    let results = [];
+    for (let i = 0, len = _ref.length; i < len; i++) {
+      bar.wav.timing.push(_ref[i].timing);
+      results.push(bar.wav.id.push(_ref[i].id));
     }
-    return _results;
+    return results;
   };
 
   _serialize (arr, name, bms_data) {
@@ -525,7 +493,7 @@ export default class Parser {
     _results = [];
     for (i = _i = 0, _len = bms_data.length; _i < _len; i = ++_i) {
       v = bms_data[i];
-      _results.push((function() {
+      _results.push((() => {
         var _j, _len1, _ref, _results1;
         _ref = v[name].timing;
         _results1 = [];
