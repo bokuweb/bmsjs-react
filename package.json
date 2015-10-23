@@ -3,8 +3,15 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "test": "karma start",
-    "watch": "watchify --extension=js -o dist/main.js src/main.js"
+    "start": "npm run build && npm run connect",
+    "connect": "node server.js",
+    "watch": "npm run watch:js & npm run watch:stylus",
+    "build": "npm run build:js & npm run buils:stylus",
+    "watch:stylus": "stylus styl/ --watch  --out stylesheets/",
+    "build:stylus": "stylus styl/ --out stylesheets/",
+    "watch:js": "watchify --extension=js -o dist/main.js src/main.js",
+    "build:js": "browserify --extension=js -o dist/main.js src/main.js",
+    "test": "karma start"
   },
   "dependencies": {
     "lodash": "~3.9.3",
@@ -16,12 +23,6 @@
     "babelify": "~6.3.0",
     "browserify": "~9.0.8",
     "coffee-script": "~1.9.3",
-    "gulp": "~3.9.0",
-    "gulp-connect": "~2.2.0",
-    "gulp-docco": "0.0.4",
-    "gulp-plumber": "~1.0.1",
-    "gulp-stylus": "~2.0.5",
-    "gulp-watchify": "~0.5.0",
     "watchify": "~3.4.0",
     "sinon": "~1.17.1",
     "espower-loader": "~1.0.0",
@@ -38,7 +39,9 @@
     "karma-browserify": "~4.4.0",
     "karma": "~0.13.11",
     "browser-sync": "~2.9.11",
-    "babel-plugin-espower": "~1.0.0"
+    "babel-plugin-espower": "~1.0.0",
+    "connect": "~3.4.0",
+    "serve-static": "~1.10.0"
   },
   "browserify": {
     "transform": [

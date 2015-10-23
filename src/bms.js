@@ -194,6 +194,15 @@ export default class Bms {
   }
 
   view (ctrl) {
+    function createKeyElement() {
+      let elements = [];
+      // FIXME : should configuable key number
+      for (var i = 0; i < 7; i++)
+        elements.push(m(`.key.key-id${i}`));
+      elements.push(m(`.key-turntable.key-id${i}`));
+      return elements;
+    }
+
     return m("#bms", [
       this.vm.model.activeNotes().map((note) => {
         return m("div.note", {
@@ -201,8 +210,9 @@ export default class Bms {
           class : note.className
         });
       }),
-      m("div#decision-line"),
-      m("span", this.vm.model.currentBPM())
+      m("#decision-line"),
+      m("#keys", createKeyElement()),
+      m("span#bpm", this.vm.model.currentBPM())
     ]);
   }
 }
