@@ -14,7 +14,7 @@ request('./bms/AVALON/01_avalon[light7].bme', (err, res) => {
     const parser = new Parser(config);
     const bms_json = parser.parse(res.body);
     const bms = m.component(new Bms(), bms_json, config);
-    m.mount(document.body, bms);
+    m.mount(document.getElementById("main"), bms);
   } else {
     throw err;
   }
