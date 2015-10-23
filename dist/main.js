@@ -14395,7 +14395,7 @@ var BmsModel = (function () {
       return new Promise(function (resolve, reject) {
         _this.bar = 0;
         _this.stopIndex = 0;
-        _this.audio.load(_this.score.wav, 'http://bokuweb.github.io/bmsjs-ithildin/bms/AVALON/').then(resolve);
+        _this.audio.load(_this.score.wav, 'https://raw.githubusercontent.com/bokuweb/bmsjs-ithildin/gh-pages/bms/AVALON/').then(resolve);
       });
     }
   }, {
