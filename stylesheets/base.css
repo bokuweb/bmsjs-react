@@ -1,0 +1,69 @@
+/* ! normalize.css v1.0.0 | MIT License | git.io/normalize */
+/* ==========================================================================
+HTML5 display definitions
+========================================================================== */
+/* * Corrects `block` display not defined in IE 6/7/8/9 and Firefox 3. */
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+nav,
+section,
+summary {
+  display: block;
+}
+/* * Corrects `inline-block` display not defined in IE 6/7/8/9 and Firefox 3. */
+audio,
+canvas,
+video {
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+}
+/* * Prevents modern browsers from displaying `audio` without controls.
+* Remove excess height in iOS 5 devices. */
+audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+/* * Addresses styling for `hidden` attribute not present in IE 7/8/9, Firefox 3, * and Safari 4.
+* Known issue:no IE 6 support. */
+[hidden] {
+  display: none;
+}
+/* ==========================================================================
+Base
+========================================================================== */
+/* * 1. Corrects text resizing oddly in IE 6/7 when body `font-size` is set using
+*    `em` units.
+* 2. Prevents iOS text size adjust after orientation change, without disabling
+*    user zoom. */
+html {
+  font-size: 100%;
+/* 1 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+  -ms-text-size-adjust: 100%; /* 2 */
+}
+html,
+html a {
+  -webkit-font-smoothing: antialiased;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.004);
+}
+/* * Addresses `font-family` inconsistency between `textarea` and other form
+* elements. */
+html,
+button,
+input,
+select,
+textarea {
+  font-family: 'Varela Round', sans-serif;
+}
+/* * Addresses margins handled incorrectly in IE 6/7. */
+body {
+  margin: 0;
+  font-family: 'Varela Round', sans-serif;
+}
