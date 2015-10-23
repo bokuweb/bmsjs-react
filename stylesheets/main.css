@@ -1,0 +1,119 @@
+@import url("https://fonts.googleapis.com/css?family=Play");
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: #f5f5f5;
+  font-family: 'Play', sans-serif;
+}
+#bms {
+  position: relative;
+  width: 800px;
+  height: 100%;
+  margin: 0 auto;
+}
+.note {
+  z-index: 9999;
+  position: absolute;
+  height: 10px;
+}
+.note-white {
+  background: #fff;
+  width: 20px;
+  border: solid 1px #ccc;
+}
+.note-black {
+  background: #34495e;
+  width: 20px;
+  border: solid 1px #34495e;
+}
+.note-turntable {
+  background: #c0392b;
+  width: 40px;
+}
+#decision-line {
+  position: absolute;
+  top: 500px;
+  left: 300px;
+  width: 260px;
+  height: 12px;
+  background: #e74c3c;
+}
+#bpm {
+  position: absolute;
+  top: 30px;
+  font-family: 'Play', sans-serif;
+  font-size: 24px;
+  color: #bdc3c7;
+}
+.key {
+  height: 36px;
+  width: 24px;
+  border-radius: 2px;
+  position: absolute;
+}
+.key-turntable {
+  height: 48px;
+  width: 48px;
+  border-radius: 50%;
+  position: absolute;
+}
+.key-id0 {
+  left: 300px;
+  top: 540px;
+  background: #fff;
+  border-top: 1px solid #d5d5d5;
+  box-shadow: 0 0 25px #e8e8e8 inset, 0 1px 0 #c3c3c3, 0 2px 0 #c9c9c9, 0 2px 3px #333;
+}
+.key-id1 {
+  left: 330px;
+  top: 520px;
+  background: #222;
+  border-top: 1px solid #222;
+  box-shadow: 0 0 25px #333 inset, 0 1px 0 #000, 0 2px 0 #222, 0 2px 3px #333;
+}
+.key-id2 {
+  left: 360px;
+  top: 540px;
+  background: #fff;
+  border-top: 1px solid #d5d5d5;
+  box-shadow: 0 0 25px #e8e8e8 inset, 0 1px 0 #c3c3c3, 0 2px 0 #c9c9c9, 0 2px 3px #333;
+}
+.key-id3 {
+  left: 390px;
+  top: 520px;
+  background: #222;
+  border-top: 1px solid #222;
+  box-shadow: 0 0 25px #333 inset, 0 1px 0 #000, 0 2px 0 #222, 0 2px 3px #333;
+}
+.key-id4 {
+  left: 420px;
+  top: 540px;
+  background: #fff;
+  border-top: 1px solid #d5d5d5;
+  box-shadow: 0 0 25px #e8e8e8 inset, 0 1px 0 #c3c3c3, 0 2px 0 #c9c9c9, 0 2px 3px #333;
+}
+.key-id5 {
+  left: 450px;
+  top: 520px;
+  background: #222;
+  border-top: 1px solid #222;
+  box-shadow: 0 0 25px #333 inset, 0 1px 0 #000, 0 2px 0 #222, 0 2px 3px #333;
+}
+.key-id6 {
+  left: 480px;
+  top: 540px;
+  background: #fff;
+  border-top: 1px solid #d5d5d5;
+  box-shadow: 0 0 25px #e8e8e8 inset, 0 1px 0 #c3c3c3, 0 2px 0 #c9c9c9, 0 2px 3px #333;
+}
+.key-id7 {
+  left: 510px;
+  top: 520px;
+  background: #222;
+  border-top: 1px solid #222;
+  box-shadow: 0 0 25px #333 inset, 0 1px 0 #000, 0 2px 0 #222, 0 2px 3px #333;
+}
