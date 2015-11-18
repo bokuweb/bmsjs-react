@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "npm run build && npm run connect",
+    "start": "npm run build && sjs -r -m ./template-compiler.sjs -o dist/main2.js  dist/main.js  && npm run connect ",
     "connect": "node server.js",
     "watch": "npm run watch:js & npm run watch:stylus",
     "build": "npm run build:js & npm run build:stylus",
@@ -42,6 +42,7 @@
     "serve-static": "~1.10.0",
     "sinon": "~1.17.1",
     "stylus": "^0.52.4",
+    "sweet.js": "^0.7.4",
     "watchify": "~3.4.0"
   },
   "browserify": {
