@@ -26,6 +26,8 @@ class BmsModel {
     this.currentBPM = m.prop(this.bpm.get());
     this.dom = "";
     this.notes = [];
+
+
   }
 
   init() {
@@ -34,10 +36,30 @@ class BmsModel {
       this.stopIndex = 0;
       this.mainElement = document.getElementById('main'),
       this.audio.load(this.score.wav, '/bms/AVALON/').then(resolve);
+
+
+
     });
   }
 
   start() {
+    let fragment = document.createDocumentFragment();
+    // FIXME
+    for (let i=0; i<this.score.notes.length; i++) {
+      for (let j = 0, len = this.score.notes[i].length; j < len; j+=1) {
+        //console.log(this.score.notes[i][j]);
+        const note = this.score.notes[i][j];
+        var e = document.createElement('div');
+        e.className = 'note-white';
+        e.id = note.id;
+        fragment.appendChild(e);
+        console.dir(fragment)
+        this.mainElement.appendChild(e);
+        this.notes[note.id] = e;
+      }
+    }
+    console.dir(fragment);
+    this.mainElement.appendChild(fragment);
     this.timer.start();
   }
 
@@ -124,18 +146,18 @@ class BmsModel {
   }
 
   _generateActiveNotes(time) {
-    let dom = '';
-    let fragment;
+    //let dom = '';
+    //let fragment;
     if (time > this.score.genTime[this.bar]) {
       const notes = this.score.notes[this.bar];
-      fragment = document.createDocumentFragment();
+      //fragment = document.createDocumentFragment();
       for (let i = 0, len = notes.length; i < len; i+=1) {
         this.activeNotes().push(notes[i]);
-        var e = document.createElement('div');
-        e.className = 'note-white';
-        e.id = notes[i].id;
-        fragment.appendChild(e);
-        this.notes[notes[i].id] = e;
+        //var e = document.createElement('div');
+        //e.className = 'note-white';
+        //e.id = notes[i].id;
+        //fragment.appendChild(e);
+        //this.notes[notes[i].id] = e;
         //dom += '<div id="'+notes[i].id+'" class="note-white"></div>';
       }
 
@@ -146,7 +168,7 @@ class BmsModel {
       */
       this.bar += 1;
     }
-    if (fragment) this.mainElement.appendChild(fragment);
+    //if (fragment) this.mainElement.appendChild(fragment);
     //this.notes = this.mainElement.querySelectorAll('.note-white');
   }
 
