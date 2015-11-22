@@ -48,7 +48,7 @@ class BmsModel {
 
   judge(key) {
     const time = this.timer.get();
-    for (let i = 0, len = this.activeNotes().length; i < len; i++) {
+    for (let i = 0, len = this.activeNotes().length; i < len; i+=1) {
       let note = this.activeNotes()[i];
       if (note.key === key) {
         const diffTime = note.timing - time;

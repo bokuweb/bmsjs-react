@@ -3,7 +3,7 @@ import request from 'browser-request'
 import Parser from './parser'
 import Bms from './bms'
 
-request('./bms/AVALON/01_avalon[light7].bme', (err, res) => {
+request('./bms/AVALON/03_avalon[Another].bme', (err, res) => {
   if(!err) {
     const config = {
       highSpeed : 1,
