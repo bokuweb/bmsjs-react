@@ -5,7 +5,7 @@
   "scripts": {
     "start": "npm run build && sjs -r -m ./template-compiler.sjs -o dist/main2.js  dist/main.js  && npm run connect ",
     "connect": "node server.js",
-    "watch": "npm run watch:js & npm run watch:stylus",
+    "watch": "npm run watch:js & npm run watch:stylus & npm run connect",
     "build": "npm run build:js & npm run build:stylus",
     "watch:stylus": "stylus styl/ --watch  --out stylesheets/",
     "build:stylus": "stylus styl/ --out stylesheets/",
@@ -14,10 +14,11 @@
     "test": "karma start"
   },
   "dependencies": {
-    "lodash": "~3.9.3",
-    "mithril": "~0.2.0",
+    "browser-request": "~0.3.3",
     "events": "~1.1.0",
-    "browser-request": "~0.3.3"
+    "fastdom": "^0.8.6",
+    "lodash": "~3.9.3",
+    "mithril": "~0.2.0"
   },
   "devDependencies": {
     "babel-plugin-espower": "~1.0.0",

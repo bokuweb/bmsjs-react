@@ -1,5 +1,7 @@
 import {lcm, expand, merge} from './lib/utils'
 
+// FIXME
+let id = 0;
 export default class Parser {
   constructor(config) {
     this.bms = {
@@ -99,7 +101,8 @@ export default class Parser {
           index: 0,
           wav: key.id[j],
           className: className,
-          disabled: false
+          disabled: false,
+          id : id++
         };
         this.appendFallParams(note, bpms, time, 500);
         this.notes[measure].push(note);

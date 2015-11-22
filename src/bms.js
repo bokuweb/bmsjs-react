@@ -1,5 +1,6 @@
 import m from 'mithril';
 import _ from 'lodash';
+import fastdom from 'fastdom';
 import Timer from './timer';
 import Audio from './audio';
 import Bgm from './bgm';
@@ -23,12 +24,15 @@ class BmsModel {
     this.bpm = new Bpm(this.score.bpms);
     this.activeNotes = m.prop([]);
     this.currentBPM = m.prop(this.bpm.get());
+    this.dom = "";
+    this.notes = [];
   }
 
   init() {
     return new Promise((resolve, reject) => {
       this.bar = 0;
       this.stopIndex = 0;
+      this.mainElement = document.getElementById('main'),
       this.audio.load(this.score.wav, '/bms/AVALON/').then(resolve);
     });
   }
@@ -120,11 +124,21 @@ class BmsModel {
   }
 
   _generateActiveNotes(time) {
+    let dom = '';
+    let fragment;
     if (time > this.score.genTime[this.bar]) {
       const notes = this.score.notes[this.bar];
+      fragment = document.createDocumentFragment();
       for (let i = 0, len = notes.length; i < len; i+=1) {
         this.activeNotes().push(notes[i]);
+        var e = document.createElement('div');
+        e.className = 'note-white';
+        e.id = notes[i].id;
+        fragment.appendChild(e);
+        this.notes[notes[i].id] = e;
+        //dom += '<div id="'+notes[i].id+'" class="note-white"></div>';
       }
+
       /*
       this.score.notes[this.bar].map((notes) => {
         this.activeNotes().push(notes);
@@ -132,28 +146,39 @@ class BmsModel {
       */
       this.bar += 1;
     }
+    if (fragment) this.mainElement.appendChild(fragment);
+    //this.notes = this.mainElement.querySelectorAll('.note-white');
   }
 
   _updateNotesState(time) {
-    this.activeNotes().map((note) => {
-      const timings = note.bpm.timing;
-      let index = note.index;
+    let dom;
+    let notes = this.activeNotes();
+    for (let i = 0; i < notes.length; i+=1 ) {
+    //this.activeNotes().map((note) => {
+      const timings = notes[i].bpm.timing;
+      let index = notes[i].index;
       while (time > timings[index]) {
         if (index < timings.length - 1) index++;
         else break;
       }
       const diffTime = timings[index] - time;
-      const diffDist = diffTime * note.speed[index];
-      let y = note.distY[index] - diffDist;
+      const diffDist = diffTime * notes[i].speed[index];
+      let y = notes[i].distY[index] - diffDist;
       // FIXME : define baseline coordinate to param or style
       if (y > 500) y = 500;
       // FIXME : define active time to param
-      if (timings[index] + 200 < time) note.disabled = true;
-      note.style = {
-        top : `${y}px`,
-        left : `${30 * note.key + 300}px`
-      };
-    });
+      if (timings[index] + 200 < time) notes[i].disabled = true;
+      //note.style = {
+      //  top : `${y}px`,
+      //  left : `${30 * note.key + 300}px`
+      //};
+      //console.dir(this.notes);
+      fastdom.write(() => {
+        const e = this.notes[notes[i].id];
+        e.style.top = `${y}px`;
+        e.style.left = `${30 * notes[i].key + 300}px`;
+      });
+    }
   }
 }
 
@@ -186,7 +211,7 @@ class BmsViewModel {
 
   update(updatedAt) {
     this.model.update(updatedAt);
-    m.redraw();
+    //m.redraw();
     requestAnimationFrame(this.update.bind(this), FPS);
   }
 
@@ -212,7 +237,7 @@ export default class Bms {
     };
   }
 
-  view (ctrl) {
+  view (ctrl) {/*
     function createKeyElement() {
       let elements = [];
       // FIXME : should configuable key number
@@ -233,5 +258,6 @@ export default class Bms {
       m("#keys", createKeyElement()),
       m("span#bpm", this.vm.model.currentBPM())
     ]);
+    */
   }
 }

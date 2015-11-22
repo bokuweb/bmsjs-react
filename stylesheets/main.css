@@ -23,7 +23,9 @@ body {
 .note-white {
   background: #fff;
   width: 20px;
-  border: solid 1px #ccc;
+  height: 10px;
+  background: #34495e;
+  position: absolute;
 }
 .note-black {
   background: #34495e;
