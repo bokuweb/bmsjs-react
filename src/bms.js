@@ -37,7 +37,9 @@ class BmsModel {
     this.timer.start();
   }
 
-  update() {
+  update(updatedAt) {
+    //this.startTime = this.startTime || updatedAt;
+    //const time = updatedAt - this.startTime;
     const time = this.timer.get();
     if (this.config.isAutoPlay) this._autoPlay(time);
     this.bgm.playIfNeeded(time);
@@ -74,6 +76,18 @@ class BmsModel {
 
   _autoPlay(time) {
     const play = this.audio.playSound.bind(this.audio);
+    let notes = this.activeNotes();
+    for (let i = 0; i < notes.length; i+=1 ) {
+      if (!notes[i].hasPlayed) {
+        const timings = notes[i].bpm.timing;
+        const playTime = timings[timings.length - 1] + this.config.timingAdjustment;
+        if (time > playTime) {
+          play(notes[i].wav, 0);
+          notes[i].hasPlayed = true;
+        }
+      }
+    }
+    /*
     this.activeNotes().map((note) => {
       if (!note.hasPlayed) {
         const timings = note.bpm.timing;
@@ -84,6 +98,7 @@ class BmsModel {
         }
       }
     });
+    */
   }
 
   _stopSequenceIfNeeded(time) {
@@ -101,17 +116,21 @@ class BmsModel {
   }
 
   _rejectDisableNotes() {
-    this.activeNotes(_.reject(this.activeNotes(), (note) => {
-      return note.disabled;
-    }));
+    this.activeNotes(_.reject(this.activeNotes(), note => note.disabled));
   }
 
   _generateActiveNotes(time) {
     if (time > this.score.genTime[this.bar]) {
+      const notes = this.score.notes[this.bar];
+      for (let i = 0, len = notes.length; i < len; i+=1) {
+        this.activeNotes().push(notes[i]);
+      }
+      /*
       this.score.notes[this.bar].map((notes) => {
         this.activeNotes().push(notes);
       });
-      this.bar++;
+      */
+      this.bar += 1;
     }
   }
 
@@ -165,8 +184,8 @@ class BmsViewModel {
     this.model.start();
   }
 
-  update() {
-    this.model.update();
+  update(updatedAt) {
+    this.model.update(updatedAt);
     m.redraw();
     requestAnimationFrame(this.update.bind(this), FPS);
   }
@@ -202,7 +221,7 @@ export default class Bms {
       elements.push(m(`.key-turntable.key-id${i}`));
       return elements;
     }
-
+    
     return m("#bms", [
       this.vm.model.activeNotes().map((note) => {
         return m("div.note", {
