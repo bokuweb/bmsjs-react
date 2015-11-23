@@ -1,5 +1,3 @@
-import m from 'mithril';
-import _ from 'lodash';
 import fastdom from 'fastdom';
 import Timer from './timer';
 import Audio from './audio';
@@ -22,12 +20,9 @@ class BmsModel {
     this.audio = new Audio();
     this.bgm = new Bgm(this.score.bgms, this.audio.playSound.bind(this.audio));
     this.bpm = new Bpm(this.score.bpms);
-    this.activeNotes = m.prop([]);
-    this.currentBPM = m.prop(this.bpm.get());
-    this.dom = "";
+    this.activeNotes = [];
+    this.currentBPM = this.bpm.get();
     this.notes = [];
-
-
   }
 
   init() {
@@ -36,9 +31,6 @@ class BmsModel {
       this.stopIndex = 0;
       this.mainElement = document.getElementById('main'),
       this.audio.load(this.score.wav, '/bms/AVALON/').then(resolve);
-
-
-
     });
   }
 
@@ -47,18 +39,15 @@ class BmsModel {
     // FIXME
     for (let i=0; i<this.score.notes.length; i++) {
       for (let j = 0, len = this.score.notes[i].length; j < len; j+=1) {
-        //console.log(this.score.notes[i][j]);
         const note = this.score.notes[i][j];
+        this.activeNotes.push(note);
         var e = document.createElement('div');
         e.className = 'note-white';
         e.id = note.id;
         fragment.appendChild(e);
-        console.dir(fragment)
-        this.mainElement.appendChild(e);
         this.notes[note.id] = e;
       }
     }
-    console.dir(fragment);
     this.mainElement.appendChild(fragment);
     this.timer.start();
   }
@@ -69,15 +58,15 @@ class BmsModel {
     const time = this.timer.get();
     if (this.config.isAutoPlay) this._autoPlay(time);
     this.bgm.playIfNeeded(time);
-    this.currentBPM(this.bpm.update(time));
+    this.currentBPM = this.bpm.update(time);
     this._stopSequenceIfNeeded(time);
     this._updateNotes(time);
   }
 
   judge(key) {
     const time = this.timer.get();
-    for (let i = 0, len = this.activeNotes().length; i < len; i+=1) {
-      let note = this.activeNotes()[i];
+    for (let i = 0, len = this.activeNotes.length; i < len; i+=1) {
+      let note = this.activeNotes[i];
       if (note.key === key) {
         const diffTime = note.timing - time;
         if (!note.clear) {
@@ -95,14 +84,12 @@ class BmsModel {
   }
 
   _updateNotes (time) {
-    this._generateActiveNotes(time);
     this._updateNotesState(time);
-    this._rejectDisableNotes();
   }
 
   _autoPlay(time) {
     const play = this.audio.playSound.bind(this.audio);
-    let notes = this.activeNotes();
+    let notes = this.activeNotes;
     for (let i = 0; i < notes.length; i+=1 ) {
       if (!notes[i].hasPlayed) {
         const timings = notes[i].bpm.timing;
@@ -113,18 +100,6 @@ class BmsModel {
         }
       }
     }
-    /*
-    this.activeNotes().map((note) => {
-      if (!note.hasPlayed) {
-        const timings = note.bpm.timing;
-        const playTime = timings[timings.length - 1] + this.config.timingAdjustment;
-        if (time > playTime) {
-          play(note.wav, 0);
-          note.hasPlayed = true;
-        }
-      }
-    });
-    */
   }
 
   _stopSequenceIfNeeded(time) {
@@ -132,7 +107,7 @@ class BmsModel {
     if (timings[this.stopIndex] === undefined) return;
     if (time < timings[this.stopIndex].timing) return;
     const stops = this.score.stops;
-    const barTime = 240000 / this.currentBPM();
+    const barTime = 240000 / this.currentBPM;
     const stopTime = stops[timings[this.stopIndex].id] / 192 * barTime;
     this.timer.pause();
     setTimeout(() => {
@@ -141,65 +116,40 @@ class BmsModel {
     this.stopIndex++;
   }
 
-  _rejectDisableNotes() {
-    this.activeNotes(_.reject(this.activeNotes(), note => note.disabled));
-  }
-
   _generateActiveNotes(time) {
-    //let dom = '';
-    //let fragment;
     if (time > this.score.genTime[this.bar]) {
       const notes = this.score.notes[this.bar];
-      //fragment = document.createDocumentFragment();
       for (let i = 0, len = notes.length; i < len; i+=1) {
-        this.activeNotes().push(notes[i]);
-        //var e = document.createElement('div');
-        //e.className = 'note-white';
-        //e.id = notes[i].id;
-        //fragment.appendChild(e);
-        //this.notes[notes[i].id] = e;
-        //dom += '<div id="'+notes[i].id+'" class="note-white"></div>';
+        this.activeNotes.push(notes[i]);
       }
-
-      /*
-      this.score.notes[this.bar].map((notes) => {
-        this.activeNotes().push(notes);
-      });
-      */
       this.bar += 1;
     }
-    //if (fragment) this.mainElement.appendChild(fragment);
-    //this.notes = this.mainElement.querySelectorAll('.note-white');
   }
 
+  _move(note, x, y) {
+    const e = this.notes[note.id];
+    e.style.top = `${y}px`;
+    e.style.left = `${30 * note.key + 300}px`;
+    //e.style.WebkitTransform = `translate3d(0,${y}px,0)`;
+  }
   _updateNotesState(time) {
-    let dom;
-    let notes = this.activeNotes();
-    for (let i = 0; i < notes.length; i+=1 ) {
-    //this.activeNotes().map((note) => {
-      const timings = notes[i].bpm.timing;
-      let index = notes[i].index;
-      while (time > timings[index]) {
-        if (index < timings.length - 1) index++;
-        else break;
+    let notes = this.activeNotes;
+    for (let i = 0; i < notes.length; i+=1|0 ) {
+      if (!notes[i].disabled) {
+        const timings = notes[i].bpm.timing;
+        let index = notes[i].index;
+        while (time > timings[index]) {
+          if (index < timings.length - 1) index++;
+          else break;
+        }
+        const diffTime = timings[index] - time;
+        const diffDist = diffTime * notes[i].speed[index];
+        let y = notes[i].distY[index] - diffDist;
+        y = (y > 500)? 500 : y;
+        // FIXME : define active time to param
+        if (timings[index] + 200 < time) notes[i].disabled = true;
+        if (y > -20) fastdom.write(this._move.bind(this, notes[i], 30 * notes[i].key + 300, y));
       }
-      const diffTime = timings[index] - time;
-      const diffDist = diffTime * notes[i].speed[index];
-      let y = notes[i].distY[index] - diffDist;
-      // FIXME : define baseline coordinate to param or style
-      if (y > 500) y = 500;
-      // FIXME : define active time to param
-      if (timings[index] + 200 < time) notes[i].disabled = true;
-      //note.style = {
-      //  top : `${y}px`,
-      //  left : `${30 * note.key + 300}px`
-      //};
-      //console.dir(this.notes);
-      fastdom.write(() => {
-        const e = this.notes[notes[i].id];
-        e.style.top = `${y}px`;
-        e.style.left = `${30 * notes[i].key + 300}px`;
-      });
     }
   }
 }
@@ -218,7 +168,6 @@ class BmsViewModel {
   }
 
   onKeyDown(key) {
-    //console.log(key);
     this.model.judge(key);
   }
 
@@ -233,7 +182,6 @@ class BmsViewModel {
 
   update(updatedAt) {
     this.model.update(updatedAt);
-    //m.redraw();
     requestAnimationFrame(this.update.bind(this), FPS);
   }
 
@@ -248,38 +196,10 @@ class BmsViewModel {
 }
 
 export default class Bms {
-  constructor() {
+  constructor(score, config) {
     this.vm = new BmsViewModel();
-    return {
-      controller: (score, config) => {
-        this.vm.init(score, config)
-          .then(() => this.vm.start());
-      },
-      view: this.view.bind(this)
-    };
+    this.vm.init(score, config)
+      .then(() => this.vm.start());
   }
 
-  view (ctrl) {/*
-    function createKeyElement() {
-      let elements = [];
-      // FIXME : should configuable key number
-      for (var i = 0; i < 7; i++)
-        elements.push(m(`.key.key-id${i}`));
-      elements.push(m(`.key-turntable.key-id${i}`));
-      return elements;
-    }
-    
-    return m("#bms", [
-      this.vm.model.activeNotes().map((note) => {
-        return m("div.note", {
-          style : note.style,
-          class : note.className
-        });
-      }),
-      m("#decision-line"),
-      m("#keys", createKeyElement()),
-      m("span#bpm", this.vm.model.currentBPM())
-    ]);
-    */
-  }
 }

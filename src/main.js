@@ -13,8 +13,9 @@ request('./bms/AVALON/03_avalon[Another].bme', (err, res) => {
     }
     const parser = new Parser(config);
     const bms_json = parser.parse(res.body);
-    const bms = m.component(new Bms(), bms_json, config);
-    m.mount(document.getElementById("main"), bms);
+    //const bms = m.component(new Bms(), bms_json, config);
+    //m.mount(document.getElementById("main"), bms);
+    const bms = new Bms(bms_json, config);
   } else {
     throw err;
   }
