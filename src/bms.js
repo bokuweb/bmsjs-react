@@ -41,9 +41,9 @@ class BmsModel {
   }
 
   update(updatedAt) {
-    this.startTime = this.startTime || updatedAt;
-    const time = updatedAt - this.startTime;
-    //const time = this.timer.get();
+    //this.startTime = this.startTime || updatedAt;
+    //const time = updatedAt - this.startTime;
+    const time = this.timer.get();
     if (this.config.isAutoPlay) this._autoPlay(time);
     this.bgm.playIfNeeded(time);
     this.currentBPM = this.bpm.update(time);
@@ -136,6 +136,7 @@ class BmsModel {
       if (y > 500) y = 500;
       // FIXME : define active time to param
       if (timings[index] + 200 < time) note.disabled = true;
+      note.y = y;
       note.style = {
         top : `${y}px`,
         left : `${30 * note.key + 300}px`
@@ -213,8 +214,7 @@ export default class Bms extends Component {
 
     function getNotes(notes) {
       return notes.map((note) => {
-        console.log(note.style);
-        return <div className={"note "+note.className} style={note.style} />
+        if (note.y > 0) return <div className={"note "+note.className} style={note.style} />
       });
     }
 
