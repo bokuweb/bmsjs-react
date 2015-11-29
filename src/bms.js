@@ -223,7 +223,7 @@ export default class Bms extends Component {
         {getNotes(this.vm.model.activeNotes)}
         <div id="decision-line" />
         <div id="keys">{createKeyElement()}</div>
-        <span id="bpm">{this.vm.model.currentBPM.val}</span>
+        <span id="bpm">{this.vm.model.currentBPM}</span>
       </div>
     );
   }
