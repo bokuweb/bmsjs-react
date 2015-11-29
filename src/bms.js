@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 
-//import m from 'mithril';
 import _ from 'lodash';
 import Timer from './timer';
 import Audio from './audio';
@@ -121,7 +120,6 @@ class BmsModel {
   }
 
   _updateNotesState(time) {
-    console.log(time);
     this.activeNotes.map((note) => {
       const timings = note.bpm.timing;
       let index = note.index;
@@ -145,14 +143,22 @@ class BmsModel {
   }
 }
 
-class BmsViewModel {
+export default class Bms extends Component {
+  constructor(props) {
+    super(props);
+    this.init(props.score, props.config)
+      .then(() => {
+        this.start();
+      });
+  }
+
   init(score, config) {
     return new Promise((resolve, reject) => {
       this.model = new BmsModel(score, config);
       this.model.init().then(resolve);
       const keyEvents = this._createKeyDownEvents(config.key);
       configureKeyEvent([
-        ...keyEvents,
+          ...keyEvents,
         {key : 27, listener : this.onESCKeyDown.bind(this)}
       ]);
     });
@@ -175,6 +181,7 @@ class BmsViewModel {
   update(updatedAt) {
     this.model.update(updatedAt);
     requestAnimationFrame(this.update.bind(this), FPS);
+    this.forceUpdate();
   }
 
   _createKeyDownEvents(keys) {
@@ -184,22 +191,6 @@ class BmsViewModel {
       events.push({key, listener : this.onKeyDown.bind(this, i)});
     }
     return events;
-  }
-}
-
-export default class Bms extends Component {
-  constructor(props) {
-    super(props);
-    this.vm = new BmsViewModel();
-    this.vm.init(props.score, props.config)
-      .then(() => {
-        this.vm.start();
-        const update = () => {
-          this.forceUpdate();
-          requestAnimationFrame(update);
-        }
-        update();
-      });
   }
 
   render() {
@@ -220,10 +211,10 @@ export default class Bms extends Component {
 
     return (
       <div id="bms">
-        {getNotes(this.vm.model.activeNotes)}
+        {getNotes(this.model.activeNotes)}
         <div id="decision-line" />
         <div id="keys">{createKeyElement()}</div>
-        <span id="bpm">{this.vm.model.currentBPM}</span>
+        <span id="bpm">{this.model.currentBPM}</span>
       </div>
     );
   }
