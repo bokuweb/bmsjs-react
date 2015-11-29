@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "npm run build && sjs -r -m ./template-compiler.sjs -o dist/main2.js  dist/main.js  && npm run connect ",
+    "start": "npm run build && npm run connect ",
     "connect": "node server.js",
     "watch": "npm run watch:js & npm run watch:stylus",
     "build": "npm run build:js & npm run build:stylus",

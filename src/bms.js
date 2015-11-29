@@ -1,4 +1,7 @@
-import m from 'mithril';
+import React, { Component } from 'react';
+import { render } from 'react-dom';
+
+//import m from 'mithril';
 import _ from 'lodash';
 import Timer from './timer';
 import Audio from './audio';
@@ -21,8 +24,8 @@ class BmsModel {
     this.audio = new Audio();
     this.bgm = new Bgm(this.score.bgms, this.audio.playSound.bind(this.audio));
     this.bpm = new Bpm(this.score.bpms);
-    this.activeNotes = m.prop([]);
-    this.currentBPM = m.prop(this.bpm.get());
+    this.activeNotes = [];
+    this.currentBPM = this.bpm.get();
   }
 
   init() {
@@ -38,20 +41,20 @@ class BmsModel {
   }
 
   update(updatedAt) {
-    //this.startTime = this.startTime || updatedAt;
-    //const time = updatedAt - this.startTime;
-    const time = this.timer.get();
+    this.startTime = this.startTime || updatedAt;
+    const time = updatedAt - this.startTime;
+    //const time = this.timer.get();
     if (this.config.isAutoPlay) this._autoPlay(time);
     this.bgm.playIfNeeded(time);
-    this.currentBPM(this.bpm.update(time));
+    this.currentBPM = this.bpm.update(time);
     this._stopSequenceIfNeeded(time);
     this._updateNotes(time);
   }
 
   judge(key) {
     const time = this.timer.get();
-    for (let i = 0, len = this.activeNotes().length; i < len; i+=1) {
-      let note = this.activeNotes()[i];
+    for (let i = 0, len = this.activeNotes.length; i < len; i+=1) {
+      let note = this.activeNotes[i];
       if (note.key === key) {
         const diffTime = note.timing - time;
         if (!note.clear) {
@@ -76,7 +79,7 @@ class BmsModel {
 
   _autoPlay(time) {
     const play = this.audio.playSound.bind(this.audio);
-    let notes = this.activeNotes();
+    let notes = this.activeNotes;
     for (let i = 0; i < notes.length; i+=1 ) {
       if (!notes[i].hasPlayed) {
         const timings = notes[i].bpm.timing;
@@ -87,18 +90,6 @@ class BmsModel {
         }
       }
     }
-    /*
-    this.activeNotes().map((note) => {
-      if (!note.hasPlayed) {
-        const timings = note.bpm.timing;
-        const playTime = timings[timings.length - 1] + this.config.timingAdjustment;
-        if (time > playTime) {
-          play(note.wav, 0);
-          note.hasPlayed = true;
-        }
-      }
-    });
-    */
   }
 
   _stopSequenceIfNeeded(time) {
@@ -106,7 +97,7 @@ class BmsModel {
     if (timings[this.stopIndex] === undefined) return;
     if (time < timings[this.stopIndex].timing) return;
     const stops = this.score.stops;
-    const barTime = 240000 / this.currentBPM();
+    const barTime = 240000 / this.currentBPM;
     const stopTime = stops[timings[this.stopIndex].id] / 192 * barTime;
     this.timer.pause();
     setTimeout(() => {
@@ -116,26 +107,22 @@ class BmsModel {
   }
 
   _rejectDisableNotes() {
-    this.activeNotes(_.reject(this.activeNotes(), note => note.disabled));
+    this.activeNotes = _.reject(this.activeNotes, note => note.disabled);
   }
 
   _generateActiveNotes(time) {
     if (time > this.score.genTime[this.bar]) {
       const notes = this.score.notes[this.bar];
       for (let i = 0, len = notes.length; i < len; i+=1) {
-        this.activeNotes().push(notes[i]);
+        this.activeNotes.push(notes[i]);
       }
-      /*
-      this.score.notes[this.bar].map((notes) => {
-        this.activeNotes().push(notes);
-      });
-      */
       this.bar += 1;
     }
   }
 
   _updateNotesState(time) {
-    this.activeNotes().map((note) => {
+    console.log(time);
+    this.activeNotes.map((note) => {
       const timings = note.bpm.timing;
       let index = note.index;
       while (time > timings[index]) {
@@ -186,7 +173,6 @@ class BmsViewModel {
 
   update(updatedAt) {
     this.model.update(updatedAt);
-    m.redraw();
     requestAnimationFrame(this.update.bind(this), FPS);
   }
 
@@ -200,38 +186,45 @@ class BmsViewModel {
   }
 }
 
-export default class Bms {
-  constructor() {
+export default class Bms extends Component {
+  constructor(props) {
+    super(props);
     this.vm = new BmsViewModel();
-    return {
-      controller: (score, config) => {
-        this.vm.init(score, config)
-          .then(() => this.vm.start());
-      },
-      view: this.view.bind(this)
-    };
+    this.vm.init(props.score, props.config)
+      .then(() => {
+        this.vm.start();
+        const update = () => {
+          this.forceUpdate();
+          requestAnimationFrame(update);
+        }
+        update();
+      });
   }
 
-  view (ctrl) {
+  render() {
     function createKeyElement() {
       let elements = [];
       // FIXME : should configuable key number
       for (var i = 0; i < 7; i++)
-        elements.push(m(`.key.key-id${i}`));
-      elements.push(m(`.key-turntable.key-id${i}`));
+        elements.push(<div className={`key key-id${i}`} key={i} />);
+      elements.push(<div className={`key-turntable key-id${i}`} key={i} />);
       return elements;
     }
-    
-    return m("#bms", [
-      this.vm.model.activeNotes().map((note) => {
-        return m("div.note", {
-          style : note.style,
-          class : note.className
-        });
-      }),
-      m("#decision-line"),
-      m("#keys", createKeyElement()),
-      m("span#bpm", this.vm.model.currentBPM())
-    ]);
+
+    function getNotes(notes) {
+      return notes.map((note) => {
+        console.log(note.style);
+        return <div className={"note "+note.className} style={note.style} />
+      });
+    }
+
+    return (
+      <div id="bms">
+        {getNotes(this.vm.model.activeNotes)}
+        <div id="decision-line" />
+        <div id="keys">{createKeyElement()}</div>
+        <span id="bpm">{this.vm.model.currentBPM.val}</span>
+      </div>
+    );
   }
 }
