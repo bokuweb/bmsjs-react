@@ -201,8 +201,8 @@ export default class Bms {
       let elements = [];
       // FIXME : should configuable key number
       for (var i = 0; i < 7; i+=1)
-        elements.push(m(`.key.key-id${i}`));
-      elements.push(m(`.key-turntable.key-id${i}`));
+        elements.push(m(`.key.key-id${i}`, {key: i}));
+      elements.push(m(`.key-turntable.key-id${i}`, {key: i}));
       return elements;
     }
 
