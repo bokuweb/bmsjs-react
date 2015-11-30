@@ -77,7 +77,7 @@ class BmsModel {
   _autoPlay(time) {
     const play = this.audio.playSound.bind(this.audio);
     let notes = this.activeNotes();
-    for (let i = 0; i < notes.length; i+=1 ) {
+    for (let i = 0; i < notes.length; i+=1) {
       if (!notes[i].hasPlayed) {
         const timings = notes[i].bpm.timing;
         const playTime = timings[timings.length - 1] + this.config.timingAdjustment;
@@ -87,18 +87,6 @@ class BmsModel {
         }
       }
     }
-    /*
-    this.activeNotes().map((note) => {
-      if (!note.hasPlayed) {
-        const timings = note.bpm.timing;
-        const playTime = timings[timings.length - 1] + this.config.timingAdjustment;
-        if (time > playTime) {
-          play(note.wav, 0);
-          note.hasPlayed = true;
-        }
-      }
-    });
-    */
   }
 
   _stopSequenceIfNeeded(time) {
@@ -125,11 +113,6 @@ class BmsModel {
       for (let i = 0, len = notes.length; i < len; i+=1) {
         this.activeNotes().push(notes[i]);
       }
-      /*
-      this.score.notes[this.bar].map((notes) => {
-        this.activeNotes().push(notes);
-      });
-      */
       this.bar += 1;
     }
   }
@@ -139,7 +122,7 @@ class BmsModel {
       const timings = note.bpm.timing;
       let index = note.index;
       while (time > timings[index]) {
-        if (index < timings.length - 1) index++;
+        if (index < timings.length - 1) index+=1;
         else break;
       }
       const diffTime = timings[index] - time;
@@ -149,6 +132,7 @@ class BmsModel {
       if (y > 500) y = 500;
       // FIXME : define active time to param
       if (timings[index] + 200 < time) note.disabled = true;
+      note.y = y;
       note.style = {
         top : `${y}px`,
         left : `${30 * note.key + 300}px`
@@ -216,19 +200,25 @@ export default class Bms {
     function createKeyElement() {
       let elements = [];
       // FIXME : should configuable key number
-      for (var i = 0; i < 7; i++)
-        elements.push(m(`.key.key-id${i}`));
-      elements.push(m(`.key-turntable.key-id${i}`));
+      for (var i = 0; i < 7; i+=1)
+        elements.push(m(`.key.key-id${i}`, {key: i}));
+      elements.push(m(`.key-turntable.key-id${i}`, {key: i}));
       return elements;
     }
-    
+
+    function getNotes(notes) {
+      return  notes.map((note) => {
+        if (note.y > 0) {
+          return m("div.note", {
+            style : note.style,
+            class : note.className
+          });
+        }
+      });
+    }
+
     return m("#bms", [
-      this.vm.model.activeNotes().map((note) => {
-        return m("div.note", {
-          style : note.style,
-          class : note.className
-        });
-      }),
+      getNotes(this.vm.model.activeNotes()),
       m("#decision-line"),
       m("#keys", createKeyElement()),
       m("span#bpm", this.vm.model.currentBPM())
