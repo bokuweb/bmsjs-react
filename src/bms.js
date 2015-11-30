@@ -149,6 +149,7 @@ class BmsModel {
       if (y > 500) y = 500;
       // FIXME : define active time to param
       if (timings[index] + 200 < time) note.disabled = true;
+      note.y = y;
       note.style = {
         top : `${y}px`,
         left : `${30 * note.key + 300}px`
@@ -221,14 +222,20 @@ export default class Bms {
       elements.push(m(`.key-turntable.key-id${i}`));
       return elements;
     }
-    
+
+    function getNotes(notes) {
+      return notes.map((note) => {
+        if (note.y > 0) {
+          return m("div.note", {
+            style : note.style,
+            class : note.className
+          });
+        }
+      });
+    }
+
     return m("#bms", [
-      this.vm.model.activeNotes().map((note) => {
-        return m("div.note", {
-          style : note.style,
-          class : note.className
-        });
-      }),
+      getNotes(this.vm.model.activeNotes()),
       m("#decision-line"),
       m("#keys", createKeyElement()),
       m("span#bpm", this.vm.model.currentBPM())
