@@ -21,7 +21,6 @@ export default class Bms extends Component {
     const {score, config} = props;
     this.state = {
       score,
-      config,
       activeNotes : [],
       currentBPM : null
     };
@@ -88,7 +87,7 @@ export default class Bms extends Component {
     for (let i = 0; i < notes.length; i+=1 ) {
       if (!notes[i].hasPlayed) {
         const timings = notes[i].bpm.timing;
-        const playTime = timings[timings.length - 1] + this.state.config.timingAdjustment;
+        const playTime = timings[timings.length - 1] + this.props.config.timingAdjustment;
         if (time > playTime) {
           play(notes[i].wav, 0);
           notes[i].hasPlayed = true;
@@ -98,10 +97,11 @@ export default class Bms extends Component {
   }
 
   _stopSequenceIfNeeded(time) {
-    const timings = this.state.score.stopTiming;
+    const {score} = this.props;
+    const timings = score.stopTiming;
     if (timings[this.stopIndex] === undefined) return;
     if (time < timings[this.stopIndex].timing) return;
-    const stops = this.state.score.stops;
+    const stops = score.stops;
     const barTime = 240000 / this.currentBPM;
     const stopTime = stops[timings[this.stopIndex].id] / 192 * barTime;
     this.timer.pause();
@@ -166,7 +166,7 @@ export default class Bms extends Component {
     //this.startTime = this.startTime || updatedAt;
     //const time = updatedAt - this.startTime;
     const time = this.timer.get();
-    if (this.state.config.isAutoPlay) this._autoPlay(time);
+    if (this.props.config.isAutoPlay) this._autoPlay(time);
     this.bgm.playIfNeeded(time);
     this.currentBPM = this.bpm.update(time);
     this._stopSequenceIfNeeded(time);

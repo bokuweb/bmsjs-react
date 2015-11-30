@@ -5,7 +5,7 @@
   "scripts": {
     "start": "npm run build && npm run connect ",
     "connect": "node server.js",
-    "watch": "npm run watch:js & npm run watch:stylus",
+    "watch": "npm run watch:js & npm run watch:stylus & npm run connect",
     "build": "npm run build:js & npm run build:stylus",
     "watch:stylus": "stylus styl/ --watch  --out stylesheets/",
     "build:stylus": "stylus styl/ --out stylesheets/",
@@ -14,17 +14,17 @@
     "test": "karma start"
   },
   "dependencies": {
-    "lodash": "~3.9.3",
-    "mithril": "~0.2.0",
+    "browser-request": "~0.3.3",
     "events": "~1.1.0",
-    "browser-request": "~0.3.3"
+    "mithril": "~0.2.0",
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3"
   },
   "devDependencies": {
     "babel-plugin-espower": "~1.0.0",
     "babelify": "~6.3.0",
     "browser-sync": "~2.9.11",
     "browserify": "~9.0.8",
-    "coffee-script": "~1.9.3",
     "connect": "~3.4.0",
     "espower-babel": "~3.3.0",
     "espower-loader": "~1.0.0",
@@ -35,8 +35,6 @@
     "karma-chrome-launcher": "~0.2.1",
     "karma-cli": "~0.1.1",
     "karma-mocha": "~0.2.0",
-    "mithril-node-render": "~0.4.1",
-    "mithril-query": "~0.7.6",
     "mocha": "~2.3.3",
     "power-assert": "~1.1.0",
     "serve-static": "~1.10.0",
