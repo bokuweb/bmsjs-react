@@ -13,6 +13,21 @@ const requestAnimationFrame = window.requestAnimationFrame
                            || window.setTimeout;
 window.requestAnimationFrame = requestAnimationFrame;
 
+const  bindOnce = (() => {
+  var cache = {}
+  return view => {
+    if (!cache[view.toString()]) {
+      cache[view.toString()] = true
+      console.log('cache static module');
+      return view()
+    }
+    else {
+      console.log('reuse static module');
+      return {subtree: "retain"}
+    }
+  }
+}());
+
 class BmsModel {
   constructor(score, config) {
     this.score = score;
@@ -219,9 +234,10 @@ export default class Bms {
 
     return m("#bms", [
       getNotes(this.vm.model.activeNotes()),
+      m("span#bpm", this.vm.model.currentBPM()),
+      //bindOnce(() => m("#decision-line")),
       m("#decision-line"),
-      m("#keys", createKeyElement()),
-      m("span#bpm", this.vm.model.currentBPM())
+      m("#keys", createKeyElement())
     ]);
   }
 }
