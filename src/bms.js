@@ -145,8 +145,10 @@ export default class Bms extends Component {
       if (timings[index] + 200 < time) note.disabled = true;
       note.y = y;
       note.style = {
-        top : `${y}px`,
-        left : `${30 * note.key + 300}px`
+        transform: `translate3d(${30*note.key+300}px, ${y}px, 0)`,
+        WebkitTransform: `translate3d(${30*note.key+300}px, ${y}px, 0)`
+        //top : `${y}px`,
+        //left : `${30 * note.key + 300}px`
       };
       return note;
     });
