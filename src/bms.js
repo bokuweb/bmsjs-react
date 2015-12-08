@@ -212,6 +212,7 @@ export default class Bms {
   }
 
   view (ctrl) {
+    const {model: {activeNotes, currentBPM}} = this.vm;
     const createKeyElement = () => {
       let elements = [];
       // FIXME : should configuable key number
@@ -222,7 +223,7 @@ export default class Bms {
     }
 
     const getNotes = notes => {
-      return notes.map((note, i) => {
+      return activeNotes().map((note, i) => {
         if (note.y > 0) {
           return m("div.note", {
             style : note.style,
@@ -233,8 +234,8 @@ export default class Bms {
       });
     }
     return m("#bms", [
-      m("div", [getNotes(this.vm.model.activeNotes())]),
-      m("span#bpm", this.vm.model.currentBPM()),
+      m("div", [getNotes()]),
+      m("span#bpm", currentBPM()),
       bindOnce(() => m("#decision-line")),
       bindOnce(() => m("#keys", createKeyElement()))
     ]);
