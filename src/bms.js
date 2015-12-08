@@ -13,8 +13,8 @@ const requestAnimationFrame = window.requestAnimationFrame
                            || window.setTimeout;
 window.requestAnimationFrame = requestAnimationFrame;
 
-const  bindOnce = (() => {
-  var cache = {}
+const bindOnce = () => {
+  let cache = {};
   return view => {
     if (!cache[view.toString()]) {
       cache[view.toString()] = true
@@ -26,7 +26,7 @@ const  bindOnce = (() => {
       return {subtree: "retain"}
     }
   }
-}());
+}();
 
 class BmsModel {
   constructor(score, config) {
@@ -212,7 +212,7 @@ export default class Bms {
   }
 
   view (ctrl) {
-    function createKeyElement() {
+    const createKeyElement = () => {
       let elements = [];
       // FIXME : should configuable key number
       for (var i = 0; i < 7; i+=1)
@@ -221,23 +221,22 @@ export default class Bms {
       return elements;
     }
 
-    function getNotes(notes) {
-      return  notes.map((note) => {
+    const getNotes = notes => {
+      return notes.map((note, i) => {
         if (note.y > 0) {
           return m("div.note", {
             style : note.style,
-            class : note.className
+            class : note.className,
+            key : i
           });
         }
       });
     }
-
     return m("#bms", [
-      getNotes(this.vm.model.activeNotes()),
+      m("div", [getNotes(this.vm.model.activeNotes())]),
       m("span#bpm", this.vm.model.currentBPM()),
-      //bindOnce(() => m("#decision-line")),
-      m("#decision-line"),
-      m("#keys", createKeyElement())
+      bindOnce(() => m("#decision-line")),
+      bindOnce(() => m("#keys", createKeyElement()))
     ]);
   }
 }
