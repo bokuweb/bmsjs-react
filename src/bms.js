@@ -13,6 +13,21 @@ const requestAnimationFrame = window.requestAnimationFrame
                            || window.setTimeout;
 window.requestAnimationFrame = requestAnimationFrame;
 
+const  bindOnce = (() => {
+  var cache = {}
+  return view => {
+    if (!cache[view.toString()]) {
+      cache[view.toString()] = true
+      console.log('cache static module');
+      return view()
+    }
+    else {
+      console.log('reuse static module');
+      return {subtree: "retain"}
+    }
+  }
+}());
+
 class BmsModel {
   constructor(score, config) {
     this.score = score;
@@ -134,8 +149,8 @@ class BmsModel {
       if (timings[index] + 200 < time) note.disabled = true;
       note.y = y;
       note.style = {
-        top : `${y}px`,
-        left : `${30 * note.key + 300}px`
+        transform: `translate3d(${30*note.key+300}px, ${y}px, 0)`,
+        WebkitTransform: `translate3d(${30*note.key+300}px, ${y}px, 0)`
       };
     });
   }
@@ -219,9 +234,10 @@ export default class Bms {
 
     return m("#bms", [
       getNotes(this.vm.model.activeNotes()),
+      m("span#bpm", this.vm.model.currentBPM()),
+      //bindOnce(() => m("#decision-line")),
       m("#decision-line"),
-      m("#keys", createKeyElement()),
-      m("span#bpm", this.vm.model.currentBPM())
+      m("#keys", createKeyElement())
     ]);
   }
 }
