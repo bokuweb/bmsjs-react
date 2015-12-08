@@ -66,46 +66,54 @@ body {
   top: 540px;
   background: #fff;
   border-top: 1px solid #d5d5d5;
+  box-shadow: 0 0 25px #e8e8e8 inset, 0 1px 0 #c3c3c3, 0 2px 0 #c9c9c9, 0 2px 3px #333;
 }
 .key-id1 {
   left: 330px;
   top: 520px;
   background: #222;
   border-top: 1px solid #222;
+  box-shadow: 0 0 25px #333 inset, 0 1px 0 #000, 0 2px 0 #222, 0 2px 3px #333;
 }
 .key-id2 {
   left: 360px;
   top: 540px;
   background: #fff;
   border-top: 1px solid #d5d5d5;
+  box-shadow: 0 0 25px #e8e8e8 inset, 0 1px 0 #c3c3c3, 0 2px 0 #c9c9c9, 0 2px 3px #333;
 }
 .key-id3 {
   left: 390px;
   top: 520px;
   background: #222;
   border-top: 1px solid #222;
+  box-shadow: 0 0 25px #333 inset, 0 1px 0 #000, 0 2px 0 #222, 0 2px 3px #333;
 }
 .key-id4 {
   left: 420px;
   top: 540px;
   background: #fff;
   border-top: 1px solid #d5d5d5;
+  box-shadow: 0 0 25px #e8e8e8 inset, 0 1px 0 #c3c3c3, 0 2px 0 #c9c9c9, 0 2px 3px #333;
 }
 .key-id5 {
   left: 450px;
   top: 520px;
   background: #222;
   border-top: 1px solid #222;
+  box-shadow: 0 0 25px #333 inset, 0 1px 0 #000, 0 2px 0 #222, 0 2px 3px #333;
 }
 .key-id6 {
   left: 480px;
   top: 540px;
   background: #fff;
   border-top: 1px solid #d5d5d5;
+  box-shadow: 0 0 25px #e8e8e8 inset, 0 1px 0 #c3c3c3, 0 2px 0 #c9c9c9, 0 2px 3px #333;
 }
 .key-id7 {
   left: 510px;
   top: 520px;
   background: #222;
   border-top: 1px solid #222;
+  box-shadow: 0 0 25px #333 inset, 0 1px 0 #000, 0 2px 0 #222, 0 2px 3px #333;
 }
