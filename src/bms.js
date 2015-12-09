@@ -17,13 +17,11 @@ const bindOnce = () => {
   let cache = {};
   return view => {
     if (!cache[view.toString()]) {
-      cache[view.toString()] = true
-      console.log('cache static module');
-      return view()
+      cache[view.toString()] = true;
+      return view();
     }
     else {
-      console.log('reuse static module');
-      return {subtree: "retain"}
+      return {subtree: "retain"};
     }
   }
 }();
@@ -36,6 +34,7 @@ class BmsModel {
     this.audio = new Audio();
     this.bgm = new Bgm(this.score.bgms, this.audio.playSound.bind(this.audio));
     this.bpm = new Bpm(this.score.bpms);
+    this.judge = m.prop('');
     this.activeNotes = m.prop([]);
     this.currentBPM = m.prop(this.bpm.get());
   }
