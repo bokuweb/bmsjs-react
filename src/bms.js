@@ -13,20 +13,18 @@ const requestAnimationFrame = window.requestAnimationFrame
                            || window.setTimeout;
 window.requestAnimationFrame = requestAnimationFrame;
 
-const  bindOnce = (() => {
-  var cache = {}
+const bindOnce = () => {
+  let cache = {};
   return view => {
     if (!cache[view.toString()]) {
-      cache[view.toString()] = true
-      console.log('cache static module');
-      return view()
+      cache[view.toString()] = true;
+      return view();
     }
     else {
-      console.log('reuse static module');
-      return {subtree: "retain"}
+      return {subtree: "retain"};
     }
   }
-}());
+}();
 
 class BmsModel {
   constructor(score, config) {
@@ -36,6 +34,7 @@ class BmsModel {
     this.audio = new Audio();
     this.bgm = new Bgm(this.score.bgms, this.audio.playSound.bind(this.audio));
     this.bpm = new Bpm(this.score.bpms);
+    this.judge = m.prop('');
     this.activeNotes = m.prop([]);
     this.currentBPM = m.prop(this.bpm.get());
   }
@@ -212,7 +211,8 @@ export default class Bms {
   }
 
   view (ctrl) {
-    function createKeyElement() {
+    const {model: {activeNotes, currentBPM}} = this.vm;
+    const createKeyElement = () => {
       let elements = [];
       // FIXME : should configuable key number
       for (var i = 0; i < 7; i+=1)
@@ -221,23 +221,22 @@ export default class Bms {
       return elements;
     }
 
-    function getNotes(notes) {
-      return  notes.map((note) => {
+    const getNotes = notes => {
+      return activeNotes().map((note, i) => {
         if (note.y > 0) {
           return m("div.note", {
             style : note.style,
-            class : note.className
+            class : note.className,
+            key : i
           });
         }
       });
     }
-
     return m("#bms", [
-      getNotes(this.vm.model.activeNotes()),
-      m("span#bpm", this.vm.model.currentBPM()),
-      //bindOnce(() => m("#decision-line")),
-      m("#decision-line"),
-      m("#keys", createKeyElement())
+      m("div", [getNotes()]),
+      m("span#bpm", currentBPM()),
+      bindOnce(() => m("#decision-line")),
+      bindOnce(() => m("#keys", createKeyElement()))
     ]);
   }
 }
