@@ -72,6 +72,7 @@ class BmsModel {
           if ((-200 < diffTime && diffTime < 200)) {
             console.log("hit");
             note.clear = true;
+            this._setJudge('great');
             this.audio.playSound(note.wav, 0);
             return;
           } else {
@@ -80,6 +81,11 @@ class BmsModel {
         }
       }
     }
+  }
+
+  _setJudge(judge) {
+    this.judge(judge);
+    setTimeout(() => this.judge(''), 1000);
   }
 
   _updateNotes (time) {
@@ -211,7 +217,7 @@ export default class Bms {
   }
 
   view (ctrl) {
-    const {model: {activeNotes, currentBPM}} = this.vm;
+    const {model: {activeNotes, currentBPM, judge}} = this.vm;
     const createKeyElement = () => {
       let elements = [];
       // FIXME : should configuable key number
@@ -235,6 +241,7 @@ export default class Bms {
     return m("#bms", [
       m("div", [getNotes()]),
       m("span#bpm", currentBPM()),
+      m("span#judge", judge()),
       bindOnce(() => m("#decision-line")),
       bindOnce(() => m("#keys", createKeyElement()))
     ]);
