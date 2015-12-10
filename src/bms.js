@@ -102,6 +102,7 @@ class BmsModel {
         const timings = notes[i].bpm.timing;
         const playTime = timings[timings.length - 1] + this.config.timingAdjustment;
         if (time > playTime) {
+          this._setJudge("great");
           play(notes[i].wav, 0);
           notes[i].hasPlayed = true;
         }
