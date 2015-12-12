@@ -14903,7 +14903,7 @@ var _bms2 = _interopRequireDefault(_bms);
     var config = {
       highSpeed: 1,
       timingAdjustment: -8,
-      isAutoPlay: true,
+      isAutoPlay: false,
       key: [90, 83, 88, 68, 67, 70, 86, 16]
     };
     var parser = new _parser2['default'](config);
