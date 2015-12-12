@@ -34,9 +34,10 @@ class BmsModel {
     this.audio = new Audio();
     this.bgm = new Bgm(this.score.bgms, this.audio.playSound.bind(this.audio));
     this.bpm = new Bpm(this.score.bpms);
-    this.judge = m.prop('');
+    this.judgement = m.prop('');
     this.activeNotes = m.prop([]);
     this.currentBPM = m.prop(this.bpm.get());
+    this.judgeTimerId = null;
   }
 
   init() {
@@ -72,7 +73,13 @@ class BmsModel {
           if ((-200 < diffTime && diffTime < 200)) {
             console.log("hit");
             note.clear = true;
-            this._setJudge('great');
+            if (-30 < diffTime && diffTime < 30 ) {
+              this._setJudge('great');
+              //note.isGreat = true;
+            }
+            else if (-60 < diffTime && diffTime < 60 ) this._setJudge('good');
+            else if (-100 < diffTime && diffTime < 100 ) this._setJudge('bad');
+            else this._setJudge('poor');
             this.audio.playSound(note.wav, 0);
             return;
           } else {
@@ -84,8 +91,9 @@ class BmsModel {
   }
 
   _setJudge(judge) {
-    this.judge(judge);
-    setTimeout(() => this.judge(''), 1000);
+    this.judgement(judge);
+    if (this.judgeTimerId) clearTimeout(this.judgeTimerId); 
+    this.judgeTimerId = setTimeout(this.judgement.bind(null, ''), 1000);
   }
 
   _updateNotes (time) {
@@ -118,10 +126,8 @@ class BmsModel {
     const barTime = 240000 / this.currentBPM();
     const stopTime = stops[timings[this.stopIndex].id] / 192 * barTime;
     this.timer.pause();
-    setTimeout(() => {
-      this.timer.start()
-    }, stopTime);
-    this.stopIndex++;
+    setTimeout(() => this.timer.start(), stopTime);
+    this.stopIndex+=1;
   }
 
   _rejectDisableNotes() {
@@ -139,26 +145,26 @@ class BmsModel {
   }
 
   _updateNotesState(time) {
-    this.activeNotes().map((note) => {
+    for (let i = 0; i < this.activeNotes().length; i+=1) {
+      let note = this.activeNotes()[i];
       const timings = note.bpm.timing;
-      let index = note.index;
-      while (time > timings[index]) {
-        if (index < timings.length - 1) index+=1;
+      while (time > timings[note.index]) {
+        if (note.index < timings.length - 1) note.index+=1;
         else break;
       }
-      const diffTime = timings[index] - time;
-      const diffDist = diffTime * note.speed[index];
-      let y = note.distY[index] - diffDist;
+      const diffTime = timings[note.index] - time;
+      const diffDist = diffTime * note.speed[note.index];
+      let y = note.distY[note.index] - diffDist;
       // FIXME : define baseline coordinate to param or style
       if (y > 500) y = 500;
       // FIXME : define active time to param
-      if (timings[index] + 200 < time) note.disabled = true;
+      if (timings[note.index] + 200 < time) note.disabled = true;
       note.y = y;
       note.style = {
         transform: `translate3d(${30*note.key+300}px, ${y}px, 0)`,
         WebkitTransform: `translate3d(${30*note.key+300}px, ${y}px, 0)`
       };
-    });
+    }
   }
 }
 
@@ -218,7 +224,7 @@ export default class Bms {
   }
 
   view (ctrl) {
-    const {model: {activeNotes, currentBPM, judge}} = this.vm;
+    const {model: {activeNotes, currentBPM, judgement}} = this.vm;
     const createKeyElement = () => {
       let elements = [];
       // FIXME : should configuable key number
@@ -242,7 +248,7 @@ export default class Bms {
     return m("#bms", [
       m("div", [getNotes()]),
       m("span#bpm", currentBPM()),
-      m("span#judge", judge()),
+      m("span.judge", judgement()),
       bindOnce(() => m("#decision-line")),
       bindOnce(() => m("#keys", createKeyElement()))
     ]);
