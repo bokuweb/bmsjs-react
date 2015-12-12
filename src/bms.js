@@ -242,7 +242,7 @@ export default class Bms {
     return m("#bms", [
       m("div", [getNotes()]),
       m("span#bpm", currentBPM()),
-      m("span#judge", judge()),
+      m("span.judge", judge()),
       bindOnce(() => m("#decision-line")),
       bindOnce(() => m("#keys", createKeyElement()))
     ]);
