@@ -8,12 +8,6 @@ export default class Audio {
     this.gainNode = this.context.createGain();
     this.compressor = this.context.createDynamicsCompressor();
     this.gainNode.gain.value = 0.05;
-    //this.compressor.threshold.value = 20;
-    //this.compressor.knee.value = 40;
-    //this.compressor.ratio.value = 0;
-    //this.compressor.reduction.value = -20;
-    //this.compressor.attack.value = 0;
-    //this.compressor.release.value = 0.25;
   }
 
   load(urls, prefix) {

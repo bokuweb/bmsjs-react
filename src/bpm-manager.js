@@ -14,7 +14,7 @@ export default class BpmManager {
     if (bpms[this.index] === undefined) return this.currentBPM;
     if (time < bpms[this.index].timing) return this.currentBPM;
     this.currentBPM = bpms[this.index].val;
-    this.index++
+    this.index+=1;
     return this.currentBPM;
   }
 }
