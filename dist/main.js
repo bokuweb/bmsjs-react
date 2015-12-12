@@ -14401,7 +14401,7 @@ var BmsModel = (function () {
       return new Promise(function (resolve, reject) {
         _this.bar = 0;
         _this.stopIndex = 0;
-        _this.audio.load(_this.score.wav, '/bms/AVALON/').then(resolve);
+        _this.audio.load(_this.score.wav, 'http://bokuweb.github.io/bmsjs-ithildin/bms/AVALON/').then(resolve);
       });
     }
   }, {
@@ -14898,7 +14898,7 @@ var _bms = require('./bms');
 
 var _bms2 = _interopRequireDefault(_bms);
 
-(0, _browserRequest2['default'])('./bms/AVALON/03_avalon[Another].bme', function (err, res) {
+(0, _browserRequest2['default'])('http://bokuweb.github.io/bmsjs-ithildin/bms/AVALON/03_avalon[Another].bme', function (err, res) {
   if (!err) {
     var config = {
       highSpeed: 1,
