@@ -13218,28 +13218,28 @@ var m = (function app(window, undefined) {
 					var actions = []
 					for (var prop in existing) actions.push(existing[prop])
 					var changes = actions.sort(sortChanges);
-					var newCached = new Array(cached.length)
-					newCached.nodes = cached.nodes.slice()
+				    this.newCached = new Array(cached.length)
+					this.newCached.nodes = cached.nodes.slice()
 
 					for (var i = 0, change; change = changes[i]; i++) {
 						if (change.action === DELETION) {
 							clear(cached[change.index].nodes, cached[change.index]);
-							newCached.splice(change.index, 1)
+							this.newCached.splice(change.index, 1)
 						}
 						if (change.action === INSERTION) {
 							var dummy = $document.createElement("div");
 							dummy.key = data[change.index].attrs.key;
 							parentElement.insertBefore(dummy, parentElement.childNodes[change.index] || null);
-							newCached.splice(change.index, 0, {attrs: {key: data[change.index].attrs.key}, nodes: [dummy]})
-							newCached.nodes[change.index] = dummy
+							this.newCached.splice(change.index, 0, {attrs: {key: data[change.index].attrs.key}, nodes: [dummy]})
+							this.newCached.nodes[change.index] = dummy
 						}
 
 						if (change.action === MOVE) {
 							if (parentElement.childNodes[change.index] !== change.element && change.element !== null) {
 								parentElement.insertBefore(change.element, parentElement.childNodes[change.index] || null)
 							}
-							newCached[change.index] = cached[change.from]
-							newCached.nodes[change.index] = change.element
+							this.newCached[change.index] = cached[change.from]
+							this.newCached.nodes[change.index] = change.element
 						}
 					}
 					cached = newCached;
@@ -14224,12 +14224,6 @@ var Audio = (function () {
     this.gainNode = this.context.createGain();
     this.compressor = this.context.createDynamicsCompressor();
     this.gainNode.gain.value = 0.05;
-    //this.compressor.threshold.value = 20;
-    //this.compressor.knee.value = 40;
-    //this.compressor.ratio.value = 0;
-    //this.compressor.reduction.value = -20;
-    //this.compressor.attack.value = 0;
-    //this.compressor.release.value = 0.25;
   }
 
   _createClass(Audio, [{
@@ -14311,13 +14305,11 @@ var Bgm = (function () {
     key: "playIfNeeded",
     value: function playIfNeeded(time) {
       var bgms = this.bgms;
-      if (bgms[this.index] === undefined) return;
-      while (time > bgms[this.index].timing) {
+      while (bgms[this.index] !== undefined && time > bgms[this.index].timing) {
         if (time - bgms[this.index].timing < 500) {
           this.play(bgms[this.index].id, 0);
         }
-        this.index++;
-        if (bgms[this.index] === undefined) return;
+        this.index += 1;
       }
     }
   }]);
@@ -14373,6 +14365,18 @@ var FPS = 1000 / 60;
 var requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.setTimeout;
 window.requestAnimationFrame = requestAnimationFrame;
 
+var bindOnce = (function () {
+  var cache = {};
+  return function (view) {
+    if (!cache[view.toString()]) {
+      cache[view.toString()] = true;
+      return view();
+    } else {
+      return { subtree: "retain" };
+    }
+  };
+})();
+
 var BmsModel = (function () {
   function BmsModel(score, config) {
     _classCallCheck(this, BmsModel);
@@ -14383,8 +14387,10 @@ var BmsModel = (function () {
     this.audio = new _audio2['default']();
     this.bgm = new _bgm2['default'](this.score.bgms, this.audio.playSound.bind(this.audio));
     this.bpm = new _bpmManager2['default'](this.score.bpms);
+    this.judgement = _mithril2['default'].prop('');
     this.activeNotes = _mithril2['default'].prop([]);
     this.currentBPM = _mithril2['default'].prop(this.bpm.get());
+    this.judgeTimerId = null;
   }
 
   _createClass(BmsModel, [{
@@ -14395,7 +14401,7 @@ var BmsModel = (function () {
       return new Promise(function (resolve, reject) {
         _this.bar = 0;
         _this.stopIndex = 0;
-        _this.audio.load(_this.score.wav, 'https://raw.githubusercontent.com/bokuweb/bmsjs-ithildin/gh-pages/bms/AVALON/').then(resolve);
+        _this.audio.load(_this.score.wav, '/bms/AVALON/').then(resolve);
       });
     }
   }, {
@@ -14405,7 +14411,9 @@ var BmsModel = (function () {
     }
   }, {
     key: 'update',
-    value: function update() {
+    value: function update(updatedAt) {
+      //this.startTime = this.startTime || updatedAt;
+      //const time = updatedAt - this.startTime;
       var time = this.timer.get();
       if (this.config.isAutoPlay) this._autoPlay(time);
       this.bgm.playIfNeeded(time);
@@ -14417,7 +14425,7 @@ var BmsModel = (function () {
     key: 'judge',
     value: function judge(key) {
       var time = this.timer.get();
-      for (var i = 0, len = this.activeNotes().length; i < len; i++) {
+      for (var i = 0, len = this.activeNotes().length; i < len; i += 1) {
         var note = this.activeNotes()[i];
         if (note.key === key) {
           var diffTime = note.timing - time;
@@ -14425,6 +14433,10 @@ var BmsModel = (function () {
             if (-200 < diffTime && diffTime < 200) {
               console.log("hit");
               note.clear = true;
+              if (-30 < diffTime && diffTime < 30) {
+                this._setJudge('great');
+                //note.isGreat = true;
+              } else if (-60 < diffTime && diffTime < 60) this._setJudge('good');else if (-100 < diffTime && diffTime < 100) this._setJudge('bad');else this._setJudge('poor');
               this.audio.playSound(note.wav, 0);
               return;
             } else {
@@ -14433,6 +14445,13 @@ var BmsModel = (function () {
           }
         }
       }
+    }
+  }, {
+    key: '_setJudge',
+    value: function _setJudge(judge) {
+      this.judgement(judge);
+      if (this.judgeTimerId) clearTimeout(this.judgeTimerId);
+      this.judgeTimerId = setTimeout(this.judgement.bind(null, ''), 1000);
     }
   }, {
     key: '_updateNotes',
@@ -14444,24 +14463,24 @@ var BmsModel = (function () {
   }, {
     key: '_autoPlay',
     value: function _autoPlay(time) {
-      var _this2 = this;
-
       var play = this.audio.playSound.bind(this.audio);
-      this.activeNotes().map(function (note) {
-        if (!note.hasPlayed) {
-          var timings = note.bpm.timing;
-          var playTime = timings[timings.length - 1] + _this2.config.timingAdjustment;
+      var notes = this.activeNotes();
+      for (var i = 0; i < notes.length; i += 1) {
+        if (!notes[i].hasPlayed) {
+          var timings = notes[i].bpm.timing;
+          var playTime = timings[timings.length - 1] + this.config.timingAdjustment;
           if (time > playTime) {
-            play(note.wav, 0);
-            note.hasPlayed = true;
+            this._setJudge("great");
+            play(notes[i].wav, 0);
+            notes[i].hasPlayed = true;
           }
         }
-      });
+      }
     }
   }, {
     key: '_stopSequenceIfNeeded',
     value: function _stopSequenceIfNeeded(time) {
-      var _this3 = this;
+      var _this2 = this;
 
       var timings = this.score.stopTiming;
       if (timings[this.stopIndex] === undefined) return;
@@ -14471,9 +14490,9 @@ var BmsModel = (function () {
       var stopTime = stops[timings[this.stopIndex].id] / 192 * barTime;
       this.timer.pause();
       setTimeout(function () {
-        _this3.timer.start();
+        return _this2.timer.start();
       }, stopTime);
-      this.stopIndex++;
+      this.stopIndex += 1;
     }
   }, {
     key: '_rejectDisableNotes',
@@ -14485,36 +14504,36 @@ var BmsModel = (function () {
   }, {
     key: '_generateActiveNotes',
     value: function _generateActiveNotes(time) {
-      var _this4 = this;
-
       if (time > this.score.genTime[this.bar]) {
-        this.score.notes[this.bar].map(function (notes) {
-          _this4.activeNotes().push(notes);
-        });
-        this.bar++;
+        var notes = this.score.notes[this.bar];
+        for (var i = 0, len = notes.length; i < len; i += 1) {
+          this.activeNotes().push(notes[i]);
+        }
+        this.bar += 1;
       }
     }
   }, {
     key: '_updateNotesState',
     value: function _updateNotesState(time) {
-      this.activeNotes().map(function (note) {
+      for (var i = 0; i < this.activeNotes().length; i += 1) {
+        var note = this.activeNotes()[i];
         var timings = note.bpm.timing;
-        var index = note.index;
-        while (time > timings[index]) {
-          if (index < timings.length - 1) index++;else break;
+        while (time > timings[note.index]) {
+          if (note.index < timings.length - 1) note.index += 1;else break;
         }
-        var diffTime = timings[index] - time;
-        var diffDist = diffTime * note.speed[index];
-        var y = note.distY[index] - diffDist;
+        var diffTime = timings[note.index] - time;
+        var diffDist = diffTime * note.speed[note.index];
+        var y = note.distY[note.index] - diffDist;
         // FIXME : define baseline coordinate to param or style
         if (y > 500) y = 500;
         // FIXME : define active time to param
-        if (timings[index] + 200 < time) note.disabled = true;
+        if (timings[note.index] + 200 < time) note.disabled = true;
+        note.y = y;
         note.style = {
-          top: y + 'px',
-          left: 30 * note.key + 300 + 'px'
+          transform: 'translate3d(' + (30 * note.key + 300) + 'px, ' + y + 'px, 0)',
+          WebkitTransform: 'translate3d(' + (30 * note.key + 300) + 'px, ' + y + 'px, 0)'
         };
-      });
+      }
     }
   }]);
 
@@ -14529,13 +14548,13 @@ var BmsViewModel = (function () {
   _createClass(BmsViewModel, [{
     key: 'init',
     value: function init(score, config) {
-      var _this5 = this;
+      var _this3 = this;
 
       return new Promise(function (resolve, reject) {
-        _this5.model = new BmsModel(score, config);
-        _this5.model.init().then(resolve);
-        var keyEvents = _this5._createKeyDownEvents(config.key);
-        (0, _keyManager.configureKeyEvent)([].concat(_toConsumableArray(keyEvents), [{ key: 27, listener: _this5.onESCKeyDown.bind(_this5) }]));
+        _this3.model = new BmsModel(score, config);
+        _this3.model.init().then(resolve);
+        var keyEvents = _this3._createKeyDownEvents(config.key);
+        (0, _keyManager.configureKeyEvent)([].concat(_toConsumableArray(keyEvents), [{ key: 27, listener: _this3.onESCKeyDown.bind(_this3) }]));
       });
     }
   }, {
@@ -14557,8 +14576,8 @@ var BmsViewModel = (function () {
     }
   }, {
     key: 'update',
-    value: function update() {
-      this.model.update();
+    value: function update(updatedAt) {
+      this.model.update(updatedAt);
       _mithril2['default'].redraw();
       requestAnimationFrame(this.update.bind(this), FPS);
     }
@@ -14579,15 +14598,15 @@ var BmsViewModel = (function () {
 
 var Bms = (function () {
   function Bms() {
-    var _this6 = this;
+    var _this4 = this;
 
     _classCallCheck(this, Bms);
 
     this.vm = new BmsViewModel();
     return {
       controller: function controller(score, config) {
-        _this6.vm.init(score, config).then(function () {
-          return _this6.vm.start();
+        _this4.vm.init(score, config).then(function () {
+          return _this4.vm.start();
         });
       },
       view: this.view.bind(this)
@@ -14597,20 +14616,35 @@ var Bms = (function () {
   _createClass(Bms, [{
     key: 'view',
     value: function view(ctrl) {
-      function createKeyElement() {
+      var _vm$model = this.vm.model;
+      var activeNotes = _vm$model.activeNotes;
+      var currentBPM = _vm$model.currentBPM;
+      var judgement = _vm$model.judgement;
+
+      var createKeyElement = function createKeyElement() {
         var elements = [];
         // FIXME : should configuable key number
-        for (var i = 0; i < 7; i++) elements.push((0, _mithril2['default'])('.key.key-id' + i));
-        elements.push((0, _mithril2['default'])('.key-turntable.key-id' + i));
+        for (var i = 0; i < 7; i += 1) elements.push((0, _mithril2['default'])('.key.key-id' + i, { key: i }));
+        elements.push((0, _mithril2['default'])('.key-turntable.key-id' + i, { key: i }));
         return elements;
-      }
+      };
 
-      return (0, _mithril2['default'])("#bms", [this.vm.model.activeNotes().map(function (note) {
-        return (0, _mithril2['default'])("div.note", {
-          style: note.style,
-          'class': note.className
+      var getNotes = function getNotes(notes) {
+        return activeNotes().map(function (note, i) {
+          if (note.y > 0) {
+            return (0, _mithril2['default'])("div.note", {
+              style: note.style,
+              'class': note.className,
+              key: i
+            });
+          }
         });
-      }), (0, _mithril2['default'])("#decision-line"), (0, _mithril2['default'])("#keys", createKeyElement()), (0, _mithril2['default'])("span#bpm", this.vm.model.currentBPM())]);
+      };
+      return (0, _mithril2['default'])("#bms", [(0, _mithril2['default'])("div", [getNotes()]), (0, _mithril2['default'])("span#bpm", currentBPM()), (0, _mithril2['default'])("span.judge", judgement()), bindOnce(function () {
+        return (0, _mithril2['default'])("#decision-line");
+      }), bindOnce(function () {
+        return (0, _mithril2['default'])("#keys", createKeyElement());
+      })]);
     }
   }]);
 
@@ -14652,7 +14686,7 @@ var BpmManager = (function () {
       if (bpms[this.index] === undefined) return this.currentBPM;
       if (time < bpms[this.index].timing) return this.currentBPM;
       this.currentBPM = bpms[this.index].val;
-      this.index++;
+      this.index += 1;
       return this.currentBPM;
     }
   }]);
@@ -14864,7 +14898,7 @@ var _bms = require('./bms');
 
 var _bms2 = _interopRequireDefault(_bms);
 
-(0, _browserRequest2['default'])('./bms/AVALON/01_avalon[light7].bme', function (err, res) {
+(0, _browserRequest2['default'])('./bms/AVALON/03_avalon[Another].bme', function (err, res) {
   if (!err) {
     var config = {
       highSpeed: 1,
