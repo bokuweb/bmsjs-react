@@ -7,13 +7,11 @@ export default class Bgm {
 
   playIfNeeded(time) {
     const bgms = this.bgms;
-    if (bgms[this.index] === undefined) return;
-    while (time > bgms[this.index].timing) {
+    while (bgms[this.index] !== undefined && time > bgms[this.index].timing) {
       if (time - bgms[this.index].timing < 500) {
         this.play(bgms[this.index].id, 0);
       }
-      this.index++;
-      if (bgms[this.index] === undefined) return;
+      this.index+=1;
     }
   }
 }

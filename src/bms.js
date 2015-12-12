@@ -34,7 +34,7 @@ class BmsModel {
     this.audio = new Audio();
     this.bgm = new Bgm(this.score.bgms, this.audio.playSound.bind(this.audio));
     this.bpm = new Bpm(this.score.bpms);
-    this.judge = m.prop('');
+    this.judgement = m.prop('');
     this.activeNotes = m.prop([]);
     this.currentBPM = m.prop(this.bpm.get());
   }
@@ -63,6 +63,7 @@ class BmsModel {
   }
 
   judge(key) {
+    console.log(key)
     const time = this.timer.get();
     for (let i = 0, len = this.activeNotes().length; i < len; i+=1) {
       let note = this.activeNotes()[i];
@@ -72,7 +73,10 @@ class BmsModel {
           if ((-200 < diffTime && diffTime < 200)) {
             console.log("hit");
             note.clear = true;
-            this._setJudge('great');
+            if (-30 < diffTime && diffTime < 30 ) this._setJudge('great');
+            else if (-60 < diffTime && diffTime < 60 ) this._setJudge('good');
+            else if (-100 < diffTime && diffTime < 100 ) this._setJudge('bad');
+            else this._setJudge('poor');
             this.audio.playSound(note.wav, 0);
             return;
           } else {
@@ -84,7 +88,8 @@ class BmsModel {
   }
 
   _setJudge(judge) {
-    this.judge(judge);
+    console.log(judge);
+    this.judgement(judge);
     setTimeout(() => this.judge(''), 1000);
   }
 
@@ -218,7 +223,7 @@ export default class Bms {
   }
 
   view (ctrl) {
-    const {model: {activeNotes, currentBPM, judge}} = this.vm;
+    const {model: {activeNotes, currentBPM, judgement}} = this.vm;
     const createKeyElement = () => {
       let elements = [];
       // FIXME : should configuable key number
@@ -242,7 +247,7 @@ export default class Bms {
     return m("#bms", [
       m("div", [getNotes()]),
       m("span#bpm", currentBPM()),
-      m("span.judge", judge()),
+      m("span.judge", judgement()),
       bindOnce(() => m("#decision-line")),
       bindOnce(() => m("#keys", createKeyElement()))
     ]);

@@ -8,7 +8,7 @@ request('./bms/AVALON/03_avalon[Another].bme', (err, res) => {
     const config = {
       highSpeed : 1,
       timingAdjustment : -8,
-      isAutoPlay : true,
+      isAutoPlay : false,
       key : [90, 83, 88, 68, 67, 70, 86, 16]
     }
     const parser = new Parser(config);
