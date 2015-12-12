@@ -57,6 +57,7 @@ body {
   top: 420px;
   font-size: 42px;
   color: #34495e;
+  z-index: 9999;
 }
 .key {
   height: 36px;

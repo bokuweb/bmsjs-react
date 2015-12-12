@@ -37,6 +37,7 @@ class BmsModel {
     this.judgement = m.prop('');
     this.activeNotes = m.prop([]);
     this.currentBPM = m.prop(this.bpm.get());
+    this.judgeTimerId = null;
   }
 
   init() {
@@ -72,7 +73,10 @@ class BmsModel {
           if ((-200 < diffTime && diffTime < 200)) {
             console.log("hit");
             note.clear = true;
-            if (-30 < diffTime && diffTime < 30 ) this._setJudge('great');
+            if (-30 < diffTime && diffTime < 30 ) {
+              this._setJudge('great');
+              //note.isGreat = true;
+            }
             else if (-60 < diffTime && diffTime < 60 ) this._setJudge('good');
             else if (-100 < diffTime && diffTime < 100 ) this._setJudge('bad');
             else this._setJudge('poor');
@@ -88,7 +92,8 @@ class BmsModel {
 
   _setJudge(judge) {
     this.judgement(judge);
-    setTimeout(() => this.judge(''), 1000);
+    if (this.judgeTimerId) clearTimeout(this.judgeTimerId); 
+    this.judgeTimerId = setTimeout(this.judgement.bind(null, ''), 1000);
   }
 
   _updateNotes (time) {
@@ -121,7 +126,7 @@ class BmsModel {
     const barTime = 240000 / this.currentBPM();
     const stopTime = stops[timings[this.stopIndex].id] / 192 * barTime;
     this.timer.pause();
-    setTimeout(this.timer.start, stopTime);
+    setTimeout(() => this.timer.start(), stopTime);
     this.stopIndex+=1;
   }
 

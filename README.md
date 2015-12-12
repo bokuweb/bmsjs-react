@@ -1,7 +1,7 @@
 ## bmsjs-ithildin
 
-browser bms player project on mithril.js.
-This repository is heavily under development and unstable.
+DOM based browser BMS player project powered by mithril.js.     
+This repository is heavily under development and unstable.  
 
 ### Start
 
