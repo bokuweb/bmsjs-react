@@ -2,7 +2,7 @@ export default class BpmManager {
   constructor(bpms) {
     this.index = 0;
     this.bpms = bpms;
-    this.currentBPM = bpms[0];
+    this.currentBPM = bpms[0].val;
   }
 
   get() {
