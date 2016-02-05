@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
+import {Layer, Rect, Stage, Group} from 'react-konva';
 import { render } from 'react-dom';
-
 import _ from 'lodash';
 import Timer from './timer';
 import Audio from './audio';
@@ -144,12 +144,13 @@ export default class Bms extends Component {
       // FIXME : define active time to param
       if (timings[index] + 200 < time) note.disabled = true;
       note.y = y;
-      note.style = {
-        transform: `translate3d(${30*note.key+300}px, ${y}px, 0)`,
-        WebkitTransform: `translate3d(${30*note.key+300}px, ${y}px, 0)`
-        //top : `${y}px`,
-        //left : `${30 * note.key + 300}px`
-      };
+      note.x = 30 * note.key;
+      //note.style = {
+      //  transform: `translate3d(${30*note.key+300}px, ${y}px, 0)`,
+      //  WebkitTransform: `translate3d(${30*note.key+300}px, ${y}px, 0)`
+      //top : `${y}px`,
+      //left : `${30 * note.key + 300}px`
+      //};
       return note;
     });
     this.setState({activeNotes});
@@ -198,13 +199,24 @@ export default class Bms extends Component {
 
     function getNotes(notes) {
       return notes.map((note) => {
-        if (note.y > 0) return <div className={"note "+note.className} style={note.style} />
+        if (note.y > 0)
+          return (
+            <Rect
+               x={note.x} y={note.y} width={32} height={16}
+               fill={'#000000'}
+               />
+          );
+          //<div className={"note "+note.className} style={note.style} />
       });
     }
 
     return (
       <div id="bms">
-        {getNotes(this.state.activeNotes)}
+        <Stage width={300} height={600}>
+          <Layer>
+            {getNotes(this.state.activeNotes)}
+          </Layer>
+        </Stage>
         <div id="decision-line" />
         <div id="keys">{createKeyElement()}</div>
         <span id="bpm">{this.state.currentBPM}</span>
