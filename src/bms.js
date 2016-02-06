@@ -7,6 +7,7 @@ import Audio from './audio';
 import Bgm from './bgm';
 import {configureKeyEvent} from './key-manager';
 import Bpm from './bpm-manager';
+import GreatEffects from './great-effects';
 
 const FPS = 1000 / 60;
 const requestAnimationFrame = window.requestAnimationFrame
@@ -25,17 +26,6 @@ export default class Bms extends Component {
       currentBPM : null
     };
     this.init(score, config).then(this.start.bind(this));
-
-    //FIXME: test
-    this.index = 0;
-    this.imageObj = new Image();
-    this.imageObj.onload = () => {
-      console.log('load');
-      this.setState({isLoaded:true});
-      console.dir(<Sprite />)
-      console.dir(this.refs.sprite0)
-    };
-    this.imageObj.src = 'http://konvajs.github.io/assets/blob-sprite.png';
   }
 
   init(score, config) {
@@ -216,45 +206,20 @@ export default class Bms extends Component {
         return (
           <Rect
              x={note.x} y={note.y} width={28} height={12}
-             fill={'#000000'}
-             />
+             fill={'#000000'} />
         );
       else null;
     });
   }
 
   render() {
-    const animations = {
-      idle: [
-        2, 2, 70, 119,
-        71, 2, 74, 119,
-        146, 2, 81, 119,
-        226, 2, 76, 119
-      ],
-    };
-    this.index++;
-    if (this.index==4) this.index = 0;
-
     return (
       <div id="bms">
         <div id="decision-line" />
         <Stage width={300} height={600}>
           <Layer>
             {this.getNotes(this.state.activeNotes)}
-            <Sprite 
-               x={50}
-               y={50}
-               image={this.imageObj}
-               animation="idle"
-               animations={animations}
-               frameIndex={this.index} />
-            <Sprite 
-               x={50}
-               y={50}
-               image={this.imageObj}
-               animation="idle"
-               animations={animations}
-               frameIndex={this.index} />
+            <GreatEffects src='./assets/great-effect.png' />
           </Layer>
         </Stage>
         <div id="keys">{this.createKeyElement()}</div>
