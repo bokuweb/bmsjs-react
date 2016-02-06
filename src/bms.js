@@ -166,14 +166,17 @@ export default class Bms extends Component {
   }
 
   _update(updatedAt) {
-    //this.startTime = this.startTime || updatedAt;
-    //const time = updatedAt - this.startTime;
-    const time = this.timer.get();
+    this.startTime = this.startTime || updatedAt;
+    const time = updatedAt - this.startTime;
+    //const time = this.timer.get();
     if (this.props.config.isAutoPlay) this._autoPlay(time);
     this.bgm.playIfNeeded(time);
     this.currentBPM = this.bpm.update(time);
     this._stopSequenceIfNeeded(time);
-    this._updateNotes(time);
+    this._generateActiveNotes(time);
+    this._updateNotesState(time);
+    this._rejectDisableNotes();
+    //this._updateNotes(time);
     requestAnimationFrame(this._update.bind(this), FPS);
     //this.forceUpdate();
   }
@@ -187,38 +190,38 @@ export default class Bms extends Component {
     return events;
   }
 
+  createKeyElement() {
+    let elements = [];
+    // FIXME : should configuable key number
+    for (var i = 0; i < 7; i++)
+      elements.push(<div className={`key key-id${i}`} key={i} />);
+    elements.push(<div className={`key-turntable key-id${i}`} key={i} />);
+    return elements;
+  }
+
+  getNotes(notes) {
+    return notes.map((note) => {
+      if (note.y > 0)
+        return (
+          <Rect
+             x={note.x} y={note.y-1} width={28} height={12}
+             fill={'#000000'}
+             />
+        );
+      else null;
+    });
+  }
+
   render() {
-    function createKeyElement() {
-      let elements = [];
-      // FIXME : should configuable key number
-      for (var i = 0; i < 7; i++)
-        elements.push(<div className={`key key-id${i}`} key={i} />);
-      elements.push(<div className={`key-turntable key-id${i}`} key={i} />);
-      return elements;
-    }
-
-    function getNotes(notes) {
-      return notes.map((note) => {
-        if (note.y > 0)
-          return (
-            <Rect
-               x={note.x} y={note.y} width={32} height={16}
-               fill={'#000000'}
-               />
-          );
-          //<div className={"note "+note.className} style={note.style} />
-      });
-    }
-
     return (
       <div id="bms">
+        <div id="decision-line" />
         <Stage width={300} height={600}>
           <Layer>
-            {getNotes(this.state.activeNotes)}
+            {this.getNotes(this.state.activeNotes)}
           </Layer>
         </Stage>
-        <div id="decision-line" />
-        <div id="keys">{createKeyElement()}</div>
+        <div id="keys">{this.createKeyElement()}</div>
         <span id="bpm">{this.state.currentBPM}</span>
       </div>
     );
