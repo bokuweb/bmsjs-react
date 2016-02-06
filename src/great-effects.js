@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Sprite} from 'react-konva';
+import {Sprite, Layer, Group} from 'react-konva';
 
 const FPS = 1000 / 60;
 const requestAnimationFrame = window.requestAnimationFrame
@@ -11,17 +11,31 @@ window.requestAnimationFrame = requestAnimationFrame;
 export default class GreatEffects extends Component {
   constructor(props) {
     super(props);
-    //FIXME: test
-    this.index = 0;
-    this.imageObj = new Image();
-    this.imageObj.onload = () => {
-      this.setState({isLoaded:true});
+    //this.index = 0;
+    //FIXME: 
+    this.image = new Image();
+    this.state = {effects:[]};
+    this.image.onload = () => {
+
     };
-    this.imageObj.src = this.props.src;
+    this.image.src = this.props.src;
+  }
+
+  componentDidMount() {
+    this.update();
   }
 
   update(updatedAt) {
+    const newEffects = this.state.effects
+            .map(effect => ({key: effect.key, frame: effect.frame+1}))
+            .filter(effect => effect.frame < 18);
+    this.setState({effects: newEffects});
     requestAnimationFrame(this.update.bind(this), FPS);
+  }
+
+  play(key) {
+    const newEffects = this.state.effects.concat([{key, frame: 0}]);
+    this.setState({effects: newEffects});
   }
 
   render() {
@@ -47,19 +61,25 @@ export default class GreatEffects extends Component {
         800, 320, 160, 160
       ],
     };
-    this.index++;
-    if (this.index > 18) this.index = 0;
 
     return (
-      <Sprite 
-         x={50}
-         y={50}
-         image={this.imageObj}
-         animation="idle"
-         animations={animations}
-         frameIndex={this.index}
-         visible={true}
-         scale={{x:0.8, y:0.8}}/>
+      <Group>
+        {
+          this.state.effects.map(effect => {
+            return (
+              <Sprite
+                 x={effect.key * 30 - 50}
+                 y={this.props.y}
+                 image={this.image}
+                 animation="idle"
+                 animations={animations}
+                 frameIndex={effect.frame}
+                 visible={true}
+                 scale={{x:0.8, y:0.8}}/>
+            );
+          })
+        }
+      </Group>
     );
   }
 }

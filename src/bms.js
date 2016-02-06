@@ -92,6 +92,7 @@ export default class Bms extends Component {
         if (time > playTime) {
           play(notes[i].wav, 0);
           notes[i].hasPlayed = true;
+          this.refs.greatEffects.play(notes[i].key);
         }
       }
     }
@@ -142,6 +143,7 @@ export default class Bms extends Component {
       let y = note.distY[index] - diffDist;
       // FIXME : define baseline coordinate to param or style
       if (y > 500) y = 500;
+      //if (!note.disabled && timings[index] < time) this.refs.greatEffects.add(); 
       // FIXME : define active time to param
       if (timings[index] + 200 < time) note.disabled = true;
       note.y = y;
@@ -216,13 +218,17 @@ export default class Bms extends Component {
     return (
       <div id="bms">
         <div id="decision-line" />
+        <div id="keys">{this.createKeyElement()}</div>
         <Stage width={300} height={600}>
           <Layer>
             {this.getNotes(this.state.activeNotes)}
-            <GreatEffects src='./assets/great-effect.png' />
+            <GreatEffects ref='greatEffects'
+                          src='./assets/great-effect.png'
+                          xList={[0,15,30,45,60,75,90,105,120]}
+                          y={440}/>
           </Layer>
         </Stage>
-        <div id="keys">{this.createKeyElement()}</div>
+
         <span id="bpm">{this.state.currentBPM}</span>
       </div>
     );
