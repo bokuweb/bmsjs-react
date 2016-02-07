@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Layer, Rect, Stage, Group} from 'react-konva';
+import {Layer, Rect, Stage, Group, Sprite} from 'react-konva';
 import { render } from 'react-dom';
 import _ from 'lodash';
 import Timer from './timer';
@@ -7,6 +7,7 @@ import Audio from './audio';
 import Bgm from './bgm';
 import {configureKeyEvent} from './key-manager';
 import Bpm from './bpm-manager';
+import GreatEffects from './great-effects';
 
 const FPS = 1000 / 60;
 const requestAnimationFrame = window.requestAnimationFrame
@@ -91,6 +92,7 @@ export default class Bms extends Component {
         if (time > playTime) {
           play(notes[i].wav, 0);
           notes[i].hasPlayed = true;
+          this.refs.greatEffects.play(notes[i].key);
         }
       }
     }
@@ -141,6 +143,7 @@ export default class Bms extends Component {
       let y = note.distY[index] - diffDist;
       // FIXME : define baseline coordinate to param or style
       if (y > 500) y = 500;
+      //if (!note.disabled && timings[index] < time) this.refs.greatEffects.add(); 
       // FIXME : define active time to param
       if (timings[index] + 200 < time) note.disabled = true;
       note.y = y;
@@ -173,7 +176,10 @@ export default class Bms extends Component {
     this.bgm.playIfNeeded(time);
     this.currentBPM = this.bpm.update(time);
     this._stopSequenceIfNeeded(time);
-    this._updateNotes(time);
+    this._generateActiveNotes(time);
+    this._updateNotesState(time);
+    this._rejectDisableNotes();
+    //this._updateNotes(time);
     requestAnimationFrame(this._update.bind(this), FPS);
     //this.forceUpdate();
   }
@@ -187,38 +193,55 @@ export default class Bms extends Component {
     return events;
   }
 
+  createKeyElement() {
+    let elements = [];
+    // FIXME : should configuable key number
+    for (var i = 0; i < 7; i++)
+      elements.push(<div className={`key key-id${i}`} key={i} />);
+    elements.push(<div className={`key-turntable key-id${i}`} key={i} />);
+    return elements;
+  }
+
+  getNotes(notes) {
+    return notes.map((note) => {
+      // FIXME
+      const width = note.key === 7 ? 50 : 28;
+      const color = (note.key === 7) ? '#C0392B'
+              : (note.key % 2) ? '#2C3E50'
+              : '#FFF';
+      if (note.y > 0)
+        return (
+          <Rect
+             x={note.x}
+             y={note.y}
+             width={width}
+             height={12}
+             fill={color} />
+        );
+      else null;
+    });
+  }
+
   render() {
-    function createKeyElement() {
-      let elements = [];
-      // FIXME : should configuable key number
-      for (var i = 0; i < 7; i++)
-        elements.push(<div className={`key key-id${i}`} key={i} />);
-      elements.push(<div className={`key-turntable key-id${i}`} key={i} />);
-      return elements;
-    }
-
-    function getNotes(notes) {
-      return notes.map((note) => {
-        if (note.y > 0)
-          return (
-            <Rect
-               x={note.x} y={note.y} width={32} height={16}
-               fill={'#000000'}
-               />
-          );
-          //<div className={"note "+note.className} style={note.style} />
-      });
-    }
-
     return (
-      <div id="bms">
+      <div style={{
+             position : 'relative',
+             width: '260px',
+             height: '100%',
+             margin: '0 auto'
+           }}>
+        <div id="decision-line" />
+        <div id="keys">{this.createKeyElement()}</div>
         <Stage width={300} height={600}>
           <Layer>
-            {getNotes(this.state.activeNotes)}
+            {this.getNotes(this.state.activeNotes)}
+            <GreatEffects ref='greatEffects'
+                          src='./assets/great-effect.png'
+                          xList={[0,15,30,45,60,75,90,105,120]}
+                          y={440}/>
           </Layer>
         </Stage>
-        <div id="decision-line" />
-        <div id="keys">{createKeyElement()}</div>
+
         <span id="bpm">{this.state.currentBPM}</span>
       </div>
     );
