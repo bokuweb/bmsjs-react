@@ -11,35 +11,11 @@ window.requestAnimationFrame = requestAnimationFrame;
 export default class GreatEffects extends Component {
   constructor(props) {
     super(props);
-    //this.index = 0;
-    //FIXME: 
     this.image = new Image();
     this.state = {effects:[]};
-    this.image.onload = () => {
-
-    };
+    this.image.onload = () => {};
     this.image.src = this.props.src;
-  }
-
-  componentDidMount() {
-    this.update();
-  }
-
-  update(updatedAt) {
-    const newEffects = this.state.effects
-            .map(effect => ({key: effect.key, frame: effect.frame+1}))
-            .filter(effect => effect.frame < 18);
-    this.setState({effects: newEffects});
-    requestAnimationFrame(this.update.bind(this), FPS);
-  }
-
-  play(key) {
-    const newEffects = this.state.effects.concat([{key, frame: 0}]);
-    this.setState({effects: newEffects});
-  }
-
-  render() {
-    const animations = {
+    this.animations = {
       idle: [
         0, 0, 160, 160,
         160, 0, 160, 160,
@@ -61,6 +37,27 @@ export default class GreatEffects extends Component {
         800, 320, 160, 160
       ],
     };
+  }
+
+  componentDidMount() {
+    this.update();
+  }
+
+  update(updatedAt) {
+    const newEffects = this.state.effects
+            .map(effect => ({key: effect.key, frame: effect.frame+1}))
+            .filter(effect => effect.frame < 18);
+    this.setState({effects: newEffects});
+    requestAnimationFrame(this.update.bind(this), FPS);
+  }
+
+  play(key) {
+    const newEffects = this.state.effects.concat([{key, frame: 0}]);
+    this.setState({effects: newEffects});
+  }
+
+  render() {
+
 
     return (
       <Group>
@@ -72,7 +69,7 @@ export default class GreatEffects extends Component {
                  y={this.props.y}
                  image={this.image}
                  animation="idle"
-                 animations={animations}
+                 animations={this.animations}
                  frameIndex={effect.frame}
                  visible={true}
                  scale={{x:0.8, y:0.8}}/>

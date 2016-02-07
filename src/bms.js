@@ -169,9 +169,9 @@ export default class Bms extends Component {
   }
 
   _update(updatedAt) {
-    this.startTime = this.startTime || updatedAt;
-    const time = updatedAt - this.startTime;
-    //const time = this.timer.get();
+    //this.startTime = this.startTime || updatedAt;
+    //const time = updatedAt - this.startTime;
+    const time = this.timer.get();
     if (this.props.config.isAutoPlay) this._autoPlay(time);
     this.bgm.playIfNeeded(time);
     this.currentBPM = this.bpm.update(time);
@@ -204,11 +204,19 @@ export default class Bms extends Component {
 
   getNotes(notes) {
     return notes.map((note) => {
+      // FIXME
+      const width = note.key === 7 ? 50 : 28;
+      const color = (note.key === 7) ? '#C0392B'
+              : (note.key % 2) ? '#2C3E50'
+              : '#FFF';
       if (note.y > 0)
         return (
           <Rect
-             x={note.x} y={note.y} width={28} height={12}
-             fill={'#000000'} />
+             x={note.x}
+             y={note.y}
+             width={width}
+             height={12}
+             fill={color} />
         );
       else null;
     });
@@ -216,7 +224,12 @@ export default class Bms extends Component {
 
   render() {
     return (
-      <div id="bms">
+      <div style={{
+             position : 'relative',
+             width: '260px',
+             height: '100%',
+             margin: '0 auto'
+           }}>
         <div id="decision-line" />
         <div id="keys">{this.createKeyElement()}</div>
         <Stage width={300} height={600}>

@@ -9,11 +9,6 @@ body {
   background: #f5f5f5;
   font-family: 'Play', sans-serif;
 }
-#bms {
-  position: relative;
-  width: 800px;
-  height: 100%;
-}
 .note {
   z-index: 9999;
   position: absolute;
