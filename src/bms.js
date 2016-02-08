@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Layer, Rect, Stage, Group, Sprite} from 'react-konva';
+import {Layer, Rect, Stage, Group, Sprite, Text} from 'react-konva';
 import { render } from 'react-dom';
 import _ from 'lodash';
 import Timer from './timer';
@@ -217,6 +217,8 @@ export default class Bms extends Component {
              width={width}
              height={12}
              fill={color} />
+             stroke={'#ccc'}
+             strokeWidth={1} />
         );
       else null;
     });
@@ -239,6 +241,13 @@ export default class Bms extends Component {
                           src='./assets/great-effect.png'
                           xList={[0,15,30,45,60,75,90,105,120]}
                           y={440}/>
+            <Text
+               x={100}
+               y={420}
+               text={'Great'}
+               fontSize={32}
+               fill={'#555'}
+               align={'center'} />
           </Layer>
         </Stage>
       </div>

@@ -69,11 +69,7 @@ html, body
   border-radius 2px
   position absolute
 
-.key-turntable
-  height 48px
-  width 48px
-  border-radius 50%
-  position absolute
+
 
 for id in 0 ... 8
   .key-id{id}
@@ -88,3 +84,30 @@ for id in 0 ... 8
       background #222
       border-top 1px solid #222222
       box-shadow 0 0 25px #333333 inset, 0 1px 0 #000000, 0 2px 0 #222222, 0 2px 3px #333333
+
+.key-turntable
+  height 48px
+  width 48px
+  border-radius 50%
+  position absolute
+  background url(../assets/vinyl.png)
+  background-size cover
+  box-shadow none
+  border none
+  -webkit-animation spin 1.5s linear infinite
+  -moz-animation spin 1.5s linear infinite
+  -ms-animation spin 1.5s linear infinite
+  -o-animation spin 1.5s linear infinite
+  animation spin 1.5s linear infinite
+
+@-webkit-keyframes spin 
+  0% {-webkit-transform: rotate(0deg);}
+  100% {-webkit-transform: rotate(360deg);}
+
+@-moz-keyframes spin
+  0% {-moz-transform: rotate(0deg);}
+  100% {-moz-transform: rotate(360deg);}
+
+@keyframes spin
+  0% {transform: rotate(0deg);}
+  100% {transform: rotate(360deg);}
