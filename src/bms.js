@@ -241,8 +241,6 @@ export default class Bms extends Component {
                           y={440}/>
           </Layer>
         </Stage>
-
-        <span id="bpm">{this.state.currentBPM}</span>
       </div>
     );
   }

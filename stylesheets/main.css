@@ -30,7 +30,7 @@ body {
 }
 #decision-line {
   position: absolute;
-  top: 501px;
+  top: 500px;
   width: 260px;
   height: 12px;
   background: #e74c3c;
