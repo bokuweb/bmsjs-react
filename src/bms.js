@@ -23,7 +23,8 @@ export default class Bms extends Component {
     this.state = {
       score,
       activeNotes : [],
-      currentBPM : null
+      currentBPM : null,
+      judge: ''
     };
     this.init(score, config).then(this.start.bind(this));
   }
@@ -74,6 +75,10 @@ export default class Bms extends Component {
         }
       }
     }
+  }
+
+  showJudgement (judge) {
+    this.setState({judge});
   }
 
   _updateNotes (time) {
@@ -135,7 +140,7 @@ export default class Bms extends Component {
       const timings = note.bpm.timing;
       let index = note.index;
       while (time > timings[index]) {
-        if (index < timings.length - 1) index++;
+        if (index < timings.length - 1) index+=1;
         else break;
       }
       const diffTime = timings[index] - time;
@@ -148,12 +153,6 @@ export default class Bms extends Component {
       if (timings[index] + 200 < time) note.disabled = true;
       note.y = y;
       note.x = 30 * note.key;
-      //note.style = {
-      //  transform: `translate3d(${30*note.key+300}px, ${y}px, 0)`,
-      //  WebkitTransform: `translate3d(${30*note.key+300}px, ${y}px, 0)`
-      //top : `${y}px`,
-      //left : `${30 * note.key + 300}px`
-      //};
       return note;
     });
     this.setState({activeNotes});
@@ -216,7 +215,7 @@ export default class Bms extends Component {
              y={note.y}
              width={width}
              height={12}
-             fill={color} />
+             fill={color}
              stroke={'#ccc'}
              strokeWidth={1} />
         );
@@ -234,7 +233,7 @@ export default class Bms extends Component {
            }}>
         <div id="decision-line" />
         <div id="keys">{this.createKeyElement()}</div>
-        <Stage width={300} height={600}>
+        <Stage width={280} height={600}>
           <Layer>
             {this.getNotes(this.state.activeNotes)}
             <GreatEffects ref='greatEffects'
@@ -244,7 +243,7 @@ export default class Bms extends Component {
             <Text
                x={100}
                y={420}
-               text={'Great'}
+               text={this.state.judge}
                fontSize={32}
                fill={'#555'}
                align={'center'} />
