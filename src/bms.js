@@ -78,7 +78,9 @@ export default class Bms extends Component {
   }
 
   showJudgement (judge) {
+    if (this.judgeTimerId) clearTimeout(this.judgeTimerId);
     this.setState({judge});
+    this.judgeTimerId = setTimeout(() => this.setState({judge: ''}), 1000);
   }
 
   _updateNotes (time) {
@@ -98,6 +100,7 @@ export default class Bms extends Component {
           play(notes[i].wav, 0);
           notes[i].hasPlayed = true;
           this.refs.greatEffects.play(notes[i].key);
+          this.showJudgement('Great');
         }
       }
     }
